@@ -1,29 +1,30 @@
-package ropepull;
+package fi.uef.remotug;
 
-import java.io.IOException;
 import java.nio.FloatBuffer;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import ropepull.gl.ModelManager;
-import ae.gl.GLGraphicRoutines;
-import ae.gl.GLValues;
-import ae.gl.core.DisplayModePack;
-import ae.gl.core.GLCore;
-import ae.gl.core.GLKeyboardListener;
-import ae.gl.texture.GLTextureManager;
-import ae.routines.S;
+import fi.conf.ae.gl.GLGraphicRoutines;
+import fi.conf.ae.gl.GLValues;
+import fi.conf.ae.gl.core.DisplayModePack;
+import fi.conf.ae.gl.core.GLCore;
+import fi.conf.ae.gl.core.GLKeyboardListener;
+import fi.conf.ae.gl.text.GLBitmapFontBlitter;
+import fi.conf.ae.gl.text.GLBitmapFontBlitter.Alignment;
+import fi.conf.ae.gl.texture.GLTextureManager;
+import fi.uef.remotug.gl.ModelManager;
 
 public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnectionListener {
 
+	private static final int ROUND_TIME = 30;
+	
 	private long startTime = 0;
+	private long resetTime = 0;
 	private volatile float balance = 0;
 	private float lt = 0;
+	private int winner = -1;
 
 	@Override
 	public boolean glInit() {
@@ -32,7 +33,6 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 
 		//Some nice values
 		GL11.glEnable( GL11.GL_ALPHA_TEST );
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable( GL11.GL_DEPTH_TEST );
 		GL11.glDepthFunc( GL11.GL_LEQUAL );
 		GL11.glEnable( GL11.GL_BLEND );
@@ -64,32 +64,18 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 		//Create new instance for texture manager
 		new GLTextureManager(getExecutorService()).initialize();
 		
-		//Load all graphics from ./gfx
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("gfx"), "*.{jpg,png}")) {
-			for (Path path : stream) {
-				String identifier = path.getFileName().toString();
-				identifier = identifier.substring(0,identifier.length()-4);
-				S.debug("Loading texture '%s' to identifier '%s'", path.toString(), identifier);
-				GLTextureManager.getInstance().blockingLoad(path, identifier);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		//Load all graphics
+		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/font_default.png"), "font");
+		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/map.png"), "map");
+		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/rope.png"), "rope");
 		
 		//Create new model manager instance
 		new ModelManager().initialize();
 
-		//Load all models from ./gfx
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("gfx"), "*.{rawgl}")) {
-			for (Path path : stream) {
-				String identifier = path.getFileName().toString();
-				identifier = identifier.substring(0,identifier.length()-6);
-				S.debug("Loading model '%s' to identifier '%s'", path.toString(), identifier);
-				ModelManager.getInstance().loadModel(path, identifier);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		//Load all models
+		ModelManager.getInstance().loadModel(this.getClass().getResourceAsStream("/map.rawgl"), "map");
+		ModelManager.getInstance().loadModel(this.getClass().getResourceAsStream("/rope.rawgl"), "rope");
+		
 		
 		startTime = System.currentTimeMillis();
 
@@ -127,20 +113,24 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
         fb.clear();
         
         GL11.glEnable(GL11.GL_LIGHT0);
-		
-		GLValues.cameraPositionX = (float) (5*Math.sin(0.25f*Math.sin(lt * 0.0001f)));
-		GLValues.cameraPositionY = (float) (5*Math.cos(0.25f*Math.sin(lt * 0.0001f)));
-		GLValues.cameraPositionZ = -10;
+//		
+		GLValues.cameraPositionX = (float) (6*Math.sin(0.25f*balance));
+		GLValues.cameraPositionY = (float) (6*Math.cos(0.25f*balance));
+		GLValues.cameraPositionZ = -3;
 		GLValues.cameraRotationX = 0;
 		GLValues.cameraRotationY = 0;
 		GLValues.cameraRotationZ = -1;
 		
+		GL11.glEnable( GL11.GL_BLEND );
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
-			GLTextureManager.getInstance().bindTexture("interrope");
-			ModelManager.getInstance().getModel("rope").glDraw();
 			GLTextureManager.getInstance().bindTexture("map");
 			ModelManager.getInstance().getModel("map").glDraw();
+
+			GLTextureManager.getInstance().bindTexture("rope");
+			ModelManager.getInstance().getModel("rope").glShiftDraw(balance*5);
 		GL11.glPopMatrix();
 
 		//Swap to orthogonal projection
@@ -148,8 +138,20 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 		GL11.glTranslatef(0, 0, 0);
 		GLGraphicRoutines.initOrtho();
 		GL11.glDisable(GL11.GL_LIGHTING);
-
-
+		GL11.glColor4f(1, 1, 1,1);
+		
+		GL11.glPushMatrix();
+			GL11.glTranslatef(GLValues.glWidth/2, 0.5f, 5);
+			GLBitmapFontBlitter.drawString(String.format("%+.03f", balance), "font", 0.3f, 0.35f, Alignment.CENTERED);
+			
+			GL11.glTranslatef(0, GLValues.glHeight*0.8f, 0);
+			
+			if(winner < 0){
+				GLBitmapFontBlitter.drawString(String.format("%.02f s", ROUND_TIME - (System.currentTimeMillis()-resetTime)*0.001f), "font", 0.3f, 0.35f, Alignment.CENTERED);
+			} else {
+				GLBitmapFontBlitter.drawString("LOL WIN", "font", 0.3f, 0.35f, Alignment.CENTERED);
+			}
+		GL11.glPopMatrix();
 	}
 
 	@Override
@@ -166,8 +168,11 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 
 	@Override
 	public void glKeyDown(int eventKey) {
-		// TODO Auto-generated method stub
-
+		//Reset game
+		if(eventKey == Keyboard.KEY_SPACE){
+			resetTime = System.currentTimeMillis();
+			winner = -1;
+		}
 	}
 
 	@Override
@@ -180,6 +185,11 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 	@Override //This will most likely to be called from another thread, so ensure thread safety
 	public void gameBalanceChanged(float balance) {
 		this.balance = balance;
+	}
+
+	@Override
+	public void winnerAnnounced(int winnerID) {
+		winner = winnerID;
 	}
 
 }

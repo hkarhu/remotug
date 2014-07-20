@@ -1,4 +1,4 @@
-package ropepull.gl;
+package fi.uef.remotug.gl;
 
 import java.util.Vector;
 
@@ -24,6 +24,20 @@ public class Model {
 				float[] vertCoords = vertCoordsContainer.get(polygon[i].vertIdx);
 				
 				GL11.glTexCoord2f(texCoords[0], 1-texCoords[1]);
+				GL11.glVertex3f(vertCoords[0]/10f, -vertCoords[1]/10f, -vertCoords[2]/10f);
+			}
+		}
+		GL11.glEnd();
+	}
+	
+	public void glShiftDraw(float s){
+		GL11.glBegin(GL11.GL_TRIANGLES);
+		for (IndexPointer[] polygon : polygons){
+			for(int i=0; i < 3; i++){
+				float[] texCoords = texCoordsContainer.get(polygon[i].texIdx);
+				float[] vertCoords = vertCoordsContainer.get(polygon[i].vertIdx);
+				
+				GL11.glTexCoord2f(texCoords[0]+s, 1-texCoords[1]);
 				GL11.glVertex3f(vertCoords[0]/10f, -vertCoords[1]/10f, -vertCoords[2]/10f);
 			}
 		}

@@ -1,4 +1,4 @@
-package ropepull.gl;
+package fi.uef.remotug.gl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,19 +6,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
 import java.util.Vector;
 
-import ropepull.gl.Model.IndexPointer;
-import ae.AE;
-import ae.routines.S;
+import fi.conf.ae.AE;
+import fi.conf.ae.routines.S;
+import fi.uef.remotug.gl.Model.IndexPointer;
 
 public class ModelLoader {
 	
-	public static Model loadModel(Path filename) {
-		try (InputStream inStream = Files.newInputStream(filename, StandardOpenOption.READ)) {
+	public static Model loadModel(InputStream inStream) {
+		try {
 			return _loadModel(inStream);
 		}
 		catch (IOException e) {

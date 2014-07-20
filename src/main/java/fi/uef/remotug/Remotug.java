@@ -1,7 +1,14 @@
-package ropepull;
+package fi.uef.remotug;
+
+import java.io.IOException;
+
+import fi.uef.remotug.sensor.Sensor;
+import gnu.io.NoSuchPortException;
+import gnu.io.PortInUseException;
+import gnu.io.UnsupportedCommOperationException;
 
 
-public class RopePull {
+public class Remotug {
 
 	private static Sensor sensor = new Sensor();
 	private static ServerConnection serverConnection = new ServerConnection();
@@ -10,8 +17,12 @@ public class RopePull {
 	public static void main(String[] args) {
 		
 		//ServerConnection listens for changes on the rope
-		sensor.addListener(serverConnection);
-		sensor.start();
+		sensor.addListener(serverConnection);  
+		try {
+			sensor.start("/dev/ttyUSB0");
+		} catch (NoSuchPortException | PortInUseException | UnsupportedCommOperationException | IOException e) {
+			e.printStackTrace();
+		}
 		
 		//ServerConnection gives out information about the game status to the gui
 		serverConnection.addListener(gui);

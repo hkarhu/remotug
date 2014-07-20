@@ -1,10 +1,11 @@
-package ropepull.gl;
+package fi.uef.remotug.gl;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
 
-import ae.AE;
-import ae.routines.S;
+import fi.conf.ae.AE;
+import fi.conf.ae.routines.S;
 
 public class ModelManager {
 	
@@ -20,12 +21,11 @@ public class ModelManager {
 		return INSTANCE;
 	}
 	
-	public void initialize() {
-	}
+	public void initialize() {}
 
-	public void loadModel(Path path, String identifier) {
+	public void loadModel(InputStream inputStream, String identifier) {
 		if (models.containsKey(identifier)) return;
-		models.put(identifier, ModelLoader.loadModel(path));
+		models.put(identifier, ModelLoader.loadModel(inputStream));
 	}
 	
 	public Model getModel(String identifier) {
