@@ -1,5 +1,6 @@
 package fi.uef.remotug.sensor;
 
+import fi.conf.ae.routines.S;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
@@ -21,6 +22,35 @@ public class Sensor {
 	private Thread readerThread; 
 	
 	public void start(String portName) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+		
+		if(portName == ""){
+			S.debug("Port name empty, initializing fake data provider");
+			
+			readerThread = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					while (continueToRead){
+						try {
+							//announceSensorChange(kg);
+						} catch(NumberFormatException e2) {
+							e2.printStackTrace();
+						}
+						
+						try {
+							Thread.sleep(33);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			});
+			
+			readerThread.start();
+			
+			return;
+		}
 		
 		CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
 		
