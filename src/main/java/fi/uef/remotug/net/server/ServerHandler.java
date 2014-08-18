@@ -1,7 +1,7 @@
 package fi.uef.remotug.net.server;
 
 import fi.uef.remotug.net.BasePacket;
-import fi.uef.remotug.net.TestPacket;
+import fi.uef.remotug.net.PlayerPacket;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
@@ -58,8 +58,8 @@ public class ServerHandler extends ChannelHandlerAdapter {
 			return;
 		}
 		
-		if (p.getClass() == TestPacket.class) {
-			String c = ((TestPacket) p).getContent();
+		if (p.getClass() == PlayerPacket.class) {
+			String c = ((PlayerPacket) p).getContent();
 			System.out.println("Received TestPacket. Content: ["+ c+ "]");
 					
 		}/* else if (p.getClass() == AnotherPacketType.class) {
