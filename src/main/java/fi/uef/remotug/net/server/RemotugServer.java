@@ -40,9 +40,12 @@ public class RemotugServer {
 				.childHandler(new ChannelInitializer<SocketChannel>() {
 					@Override
 					public void initChannel(SocketChannel ch) throws Exception {
-						ch.pipeline().addLast(new ObjectEncoder());
-						ch.pipeline().addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(null)));
-						ch.pipeline().addLast(new ServerHandler(allClients));
+						ch.pipeline()
+	            			.addLast(new LoggingHandler(LogLevel.DEBUG))
+	            			.addLast(new ObjectEncoder())
+							.addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(null)))
+							.addLast(new ServerHandler(allClients))
+							;
 					}
 				})
 				.option(ChannelOption.SO_BACKLOG, 128)

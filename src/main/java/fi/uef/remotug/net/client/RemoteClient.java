@@ -1,5 +1,6 @@
 package fi.uef.remotug.net.client;
 
+import fi.uef.remotug.net.TestPacket;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -11,8 +12,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 
 public class RemoteClient {
 
@@ -43,6 +42,9 @@ public class RemoteClient {
         	if (!f.isSuccess()) {
             	throw new RuntimeException(f.cause());
             }
+        	
+        	System.out.println("[client] connected. sent packet DIRECT");
+    		f.channel().writeAndFlush(new TestPacket("hello hello hello DIRECT"));
         	
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
