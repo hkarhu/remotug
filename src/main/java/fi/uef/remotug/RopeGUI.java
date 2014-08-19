@@ -167,7 +167,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 	}
 
 	@Override
-	public void glKeyDown(int eventKey) {
+	public void glKeyDown(int eventKey, char keyChar) {
 		//Reset game
 		if(eventKey == Keyboard.KEY_SPACE){
 			resetTime = System.currentTimeMillis();
@@ -176,7 +176,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 	}
 
 	@Override
-	public void glKeyUp(int eventKey) {
+	public void glKeyUp(int eventKey, char keyChar) {
 		// TODO Auto-generated method stub
 
 	}
