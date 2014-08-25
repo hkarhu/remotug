@@ -1,6 +1,5 @@
 package fi.uef.remotug.net.client;
 
-import fi.uef.remotug.net.TestPacket;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -44,7 +43,7 @@ public class RemoteClient {
             }
         	
         	System.out.println("[client] connected. sent packet DIRECT");
-    		f.channel().writeAndFlush(new TestPacket("hello hello hello DIRECT"));
+    		//f.channel().writeAndFlush(new PlayerPacket("hello hello hello DIRECT"));
         	
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);

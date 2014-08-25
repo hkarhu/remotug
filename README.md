@@ -14,14 +14,14 @@ Developed for Tiedeseura. Premiere at Joen Yö 2014.
 
 ###Schematics and wiring
 
-The HX711 will connect to the Arduino
+The HX711 will connect to the Arduino:
 
 GND - GND
 VCC - VCC
 DT - A1
 SCK - A0
 
-Sensor will connect to the HX711
+Sensor will connect to the HX711:
 
 RED - E+
 BLACK - E-
@@ -72,6 +72,7 @@ mvn install
 ### Build and run
 
 ```
+Add to VM arguments: -Djava.library.path=target/natives
 <TODO>
 ```
 
