@@ -77,7 +77,7 @@ public class RemotugServer {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		RemotugServer s = new RemotugServer("127.0.0.1", 4575);
+		RemotugServer s = new RemotugServer("0.0.0.0", 4575);
 		
 		//RemoteClient c = new RemoteClient("127.0.0.1", 12345);
 		
