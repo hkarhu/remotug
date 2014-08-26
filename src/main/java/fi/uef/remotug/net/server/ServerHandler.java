@@ -2,12 +2,17 @@ package fi.uef.remotug.net.server;
 
 import fi.uef.remotug.net.BasePacket;
 import fi.uef.remotug.net.ConnectPacket;
+import fi.uef.remotug.net.DataPacket;
+import fi.uef.remotug.net.StartPacket;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class ServerHandler extends ChannelHandlerAdapter {
 	
@@ -15,6 +20,8 @@ public class ServerHandler extends ChannelHandlerAdapter {
 
 	private final HashMap<Player, Channel> playerToChannelMap = new HashMap<>();
 	private final HashMap<Channel, Player> channelToPlayerMap = new HashMap<>();
+	
+	private int playerIDs = 0;
 	
 	public ServerHandler(ChannelGroup allClients) {
 		this.allClients = allClients;
@@ -67,13 +74,18 @@ public class ServerHandler extends ChannelHandlerAdapter {
 		switch (p.getType()) {
 		case connect:
 			ConnectPacket cp = (ConnectPacket)p;
-			Player player = new Player();
-			//TODO: pelaajan lisäys ja paketin echo kaikille
+			Player player = new Player(playerIDs++, cp.getPlayerName());
+			addPlayer(player, ctx.channel());
 			allClients.writeAndFlush(cp);
 			break;
-		case start: break;
-		case data: break;
-		
+		case start: 
+			StartPacket sp = (StartPacket)p;
+			break;
+		case data: 
+			DataPacket dp = (DataPacket)p;
+			channelToPlayerMap.get(ctx.channel()).addLatestKg(dp.getKg());
+			calculateAndSendBalances(dp);
+			break;
 		//case stop: break;
 
 		default:
@@ -85,6 +97,32 @@ public class ServerHandler extends ChannelHandlerAdapter {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		cause.printStackTrace();
+	}
+	
+	private void calculateAndSendBalances(DataPacket dp) {
+		Iterator<Entry<Player, Channel>> it = playerToChannelMap.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry<Player, Channel> pairs = (Map.Entry<Player, Channel>)it.next();
+	        Player player = (Player)pairs.getKey();
+	        Channel channel = (Channel)pairs.getValue();
+	        float balance = calculateBalanceForPlayer(player);
+	        dp.setBalance(balance);
+	        channel.writeAndFlush(dp);
+	    }
+	}
+	
+	private float calculateBalanceForPlayer(Player player) {
+		float sum = player.getBufferedKg();
+		Iterator<Entry<Player, Channel>> it = playerToChannelMap.entrySet().iterator();
+		while (it.hasNext()) {
+	        Map.Entry<Player, Channel> pairs = (Map.Entry<Player, Channel>)it.next();
+	        Player p = (Player)pairs.getKey();
+	        if(!player.equals(p)) {
+	        	sum += p.getBufferedKg();
+	        }
+	        pairs.getValue();
+	    }
+		return player.getBufferedKg()/sum;
 	}
 	
 	private void addPlayer(Player p, Channel c){

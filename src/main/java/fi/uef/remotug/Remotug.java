@@ -19,7 +19,7 @@ public class Remotug {
 		//ServerConnection listens for changes on the rope
 		sensor.addListener(serverConnection);  
 		try {
-			sensor.start("/dev/ttyUSB3");
+			sensor.start("/dev/tty.usbserial-A501S2BY");
 			//sensor.start("");
 		} catch (NoSuchPortException | PortInUseException | UnsupportedCommOperationException | IOException e) {
 			e.printStackTrace();

@@ -1,7 +1,6 @@
 package fi.uef.remotug.net;
 
 public class ConnectPacket extends BasePacket {
-
 	private int id;
 	private String name;
 
@@ -16,6 +15,14 @@ public class ConnectPacket extends BasePacket {
 
 	public int getPlayerID() {
 		return id;
+	}
+	
+	public String getPlayerName() {
+		return name;
+	}
+
+	public void setPlayerName(String name) {
+		this.name = name;
 	}
 
 	@Override
