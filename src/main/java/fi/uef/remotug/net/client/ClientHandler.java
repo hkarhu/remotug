@@ -1,6 +1,6 @@
 package fi.uef.remotug.net.client;
 
-import fi.uef.remotug.net.PlayerPacket;
+import fi.uef.remotug.net.ConnectPacket;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -35,7 +35,7 @@ public class ClientHandler extends ChannelHandlerAdapter {
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		System.out.println("[client] connected. sent packet");
-		ctx.writeAndFlush(new PlayerPacket("hello hello hello"));
+		ctx.writeAndFlush(new ConnectPacket("hello hello hello"));
 	}
 	
 	@Override

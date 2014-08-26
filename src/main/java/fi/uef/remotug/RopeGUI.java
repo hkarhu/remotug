@@ -15,14 +15,16 @@ import fi.conf.ae.gl.text.GLBitmapFontBlitter;
 import fi.conf.ae.gl.text.GLBitmapFontBlitter.Alignment;
 import fi.conf.ae.gl.texture.GLTextureManager;
 import fi.uef.remotug.gl.ModelManager;
+import fi.uef.remotug.sensor.SensorListener;
 
-public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnectionListener {
+public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnectionListener, SensorListener {
 
 	private static final int ROUND_TIME = 30;
 	
 	private long startTime = 0;
 	private long resetTime = 0;
 	private volatile float balance = 0;
+	private volatile float sensor = 0;
 	private float lt = 0;
 	private int winner = -1;
 
@@ -190,6 +192,11 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 	@Override
 	public void winnerAnnounced(int winnerID) {
 		winner = winnerID;
+	}
+
+	@Override
+	public void newSensorDataArrived(float kg) {
+		
 	}
 
 }

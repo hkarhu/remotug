@@ -1,15 +1,21 @@
 package fi.uef.remotug.net.server;
 
 import fi.uef.remotug.net.BasePacket;
-import fi.uef.remotug.net.PlayerPacket;
+import fi.uef.remotug.net.ConnectPacket;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
+
+import java.util.HashMap;
 
 public class ServerHandler extends ChannelHandlerAdapter {
 	
 	private ChannelGroup allClients;
 
+	private final HashMap<Player, Channel> playerToChannelMap = new HashMap<>();
+	private final HashMap<Channel, Player> channelToPlayerMap = new HashMap<>();
+	
 	public ServerHandler(ChannelGroup allClients) {
 		this.allClients = allClients;
 	}
@@ -58,22 +64,31 @@ public class ServerHandler extends ChannelHandlerAdapter {
 			return;
 		}
 		
-		if (p.getClass() == PlayerPacket.class) {
-			String c = ((PlayerPacket) p).getContent();
-			System.out.println("Received TestPacket. Content: ["+ c+ "]");
-					
-		}/* else if (p.getClass() == AnotherPacketType.class) {
-			...
-					
-		}*/ else {
-			System.err.println("Received valid base packet but unknown class type! Client newer than server? Disconnected client.");
-			ctx.channel().close();
-			return;
+		switch (p.getType()) {
+		case connect:
+			ConnectPacket cp = (ConnectPacket)p;
+			Player player = new Player();
+			//TODO: pelaajan lisäys ja paketin echo kaikille
+			allClients.writeAndFlush(cp);
+			break;
+		case start: break;
+		case data: break;
+		
+		//case stop: break;
+
+		default:
+			System.err.println("Received valid base packet but unknown class type! Client newer than server?");
+			break;
 		}
 	}
 	
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		cause.printStackTrace();
+	}
+	
+	private void addPlayer(Player p, Channel c){
+		playerToChannelMap.put(p, c);
+		channelToPlayerMap.put(c, p);
 	}
 }
