@@ -72,14 +72,17 @@ public class Sensor {
 						BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 						while (continueToRead){
 							try {
-								//TODO get data tyyliin Integer.valueOf(reader.readLine().trim())
-								//TODO announceSensorChange(kg);
-								try {
-									S.debug("> " + reader.readLine());
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+								String dataIdf = "W: ";
+								String sData = reader.readLine();
+								//S.debug("raw> " + sData);
+								sData = sData.trim();
+								if(sData.contains(dataIdf)) {
+									String parsedData = sData.substring(sData.indexOf(dataIdf) + dataIdf.length());
+									S.debug("> " + parsedData);
+									announceSensorChange(Float.parseFloat(parsedData));
 								}
+							} catch (IOException e) {
+								e.printStackTrace();
 							} catch(NumberFormatException e2) {
 								e2.printStackTrace();
 							}
