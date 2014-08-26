@@ -58,6 +58,7 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		System.out.println("[server] client connected");
+		this.allClients.add(ctx.channel());
 	}
 	
 	@Override
@@ -75,15 +76,18 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 		
 		switch (p.getType()) {
 		case connect:
+			System.out.println("[server] received connect-packet");
 			ConnectPacket cp = (ConnectPacket)p;
 			Player player = new Player(playerIDs++, cp.getPlayerName());
 			addPlayer(player, ctx.channel());
 			allClients.writeAndFlush(cp);
 			break;
 		case start: 
+			System.out.println("[server] received start-packet");
 			StartPacket sp = (StartPacket)p;
 			break;
 		case data: 
+			System.out.println("[server] received data-packet");
 			DataPacket dp = (DataPacket)p;
 			channelToPlayerMap.get(ctx.channel()).addLatestKg(dp.getKg());
 			calculateAndSendBalances(dp);
@@ -99,6 +103,10 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		cause.printStackTrace();
+	}
+	
+	private void channelInActive(Channel channel) {
+		this.allClients.remove(channel);
 	}
 	
 	private void calculateAndSendBalances(DataPacket dp) {

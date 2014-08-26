@@ -8,6 +8,7 @@ public class Player {
 	public Player(int id, String name) {
 		this.id = id;
 		this.name = name;
+		System.out.println("[new player] " + name + ", " + id);
 	}
 	
 	public int getId() {
