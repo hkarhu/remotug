@@ -9,17 +9,19 @@ import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerHandler extends ChannelHandlerAdapter {
 	
 	private ChannelGroup allClients;
 
-	private final HashMap<Player, Channel> playerToChannelMap = new HashMap<>();
-	private final HashMap<Channel, Player> channelToPlayerMap = new HashMap<>();
+	private final ConcurrentHashMap<Player, Channel> playerToChannelMap = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Channel, Player> channelToPlayerMap = new ConcurrentHashMap<>();
 	
 	private int playerIDs = 0;
 	
@@ -100,28 +102,18 @@ public class ServerHandler extends ChannelHandlerAdapter {
 	}
 	
 	private void calculateAndSendBalances(DataPacket dp) {
-		Iterator<Entry<Player, Channel>> it = playerToChannelMap.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry<Player, Channel> pairs = (Map.Entry<Player, Channel>)it.next();
-	        Player player = (Player)pairs.getKey();
-	        Channel channel = (Channel)pairs.getValue();
-	        float balance = calculateBalanceForPlayer(player);
+		for(Player p: channelToPlayerMap.values()) {
+			float balance = calculateBalanceForPlayer(p);
 	        dp.setBalance(balance);
-	        channel.writeAndFlush(dp);
-	    }
+	        playerToChannelMap.get(p).writeAndFlush(dp);
+		}
 	}
 	
 	private float calculateBalanceForPlayer(Player player) {
-		float sum = player.getBufferedKg();
-		Iterator<Entry<Player, Channel>> it = playerToChannelMap.entrySet().iterator();
-		while (it.hasNext()) {
-	        Map.Entry<Player, Channel> pairs = (Map.Entry<Player, Channel>)it.next();
-	        Player p = (Player)pairs.getKey();
-	        if(!player.equals(p)) {
-	        	sum += p.getBufferedKg();
-	        }
-	        pairs.getValue();
-	    }
+		float sum = 0;
+		for(Player p: channelToPlayerMap.values()) {
+	        sum += p.getBufferedKg();
+		}
 		return player.getBufferedKg()/sum;
 	}
 	
