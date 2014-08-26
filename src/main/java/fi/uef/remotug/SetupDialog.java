@@ -62,8 +62,10 @@ public class SetupDialog extends JDialog {
         jLabel2.setHorizontalAlignment(SwingConstants.TRAILING);
         jLabel2.setText("Player team name");
 
-        textConnectionPort.setText("4575");
-
+        textName.setText(settings.getPlayerName());
+        textConnectionAddress.setText(settings.getServerAddress());
+        textConnectionPort.setText(settings.getServerPort() + "");
+        
         jLabel3.setHorizontalAlignment(SwingConstants.TRAILING);
         jLabel3.setText("Connection address");
 
@@ -113,6 +115,7 @@ public class SetupDialog extends JDialog {
             	settings.setSensorSpeed((int)comboSensorSpeed.getSelectedItem());
             	
             	settings.print();
+            	settings.saveSettings(settings);
             	SetupDialog.this.dispose();
             }
         });
