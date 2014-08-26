@@ -1,6 +1,7 @@
 package fi.uef.remotug;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -78,13 +79,19 @@ public class Settings implements Serializable {
 			s = (Settings) in.readObject();
 			in.close();
 			fileIn.close();
-		} catch(IOException i) {
-			i.printStackTrace();
-			return null;
 		} catch(ClassNotFoundException c) {
 			c.printStackTrace();
 			return null;
-		}
+		} catch(FileNotFoundException e) {
+			return null;
+		} catch(IOException i) {
+			i.printStackTrace();
+			return null;
+		} 
 		return s;
+	}
+
+	public void print() {
+		System.out.println("Sensor speed " + sensorSpeed);
 	}	
 }

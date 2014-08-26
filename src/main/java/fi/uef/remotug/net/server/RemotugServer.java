@@ -44,7 +44,7 @@ public class RemotugServer {
 	            			.addLast(new LoggingHandler(LogLevel.DEBUG))
 	            			.addLast(new ObjectEncoder())
 							.addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(null)))
-							.addLast(new ServerHandler(allClients))
+							.addLast(new ServersideHandler(allClients))
 							;
 					}
 				})
@@ -77,7 +77,7 @@ public class RemotugServer {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		RemotugServer s = new RemotugServer("127.0.0.1", 12345);
+		RemotugServer s = new RemotugServer("127.0.0.1", 4575);
 		
 		//RemoteClient c = new RemoteClient("127.0.0.1", 12345);
 		

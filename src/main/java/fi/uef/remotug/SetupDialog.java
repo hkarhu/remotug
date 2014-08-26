@@ -32,11 +32,13 @@ public class SetupDialog extends JDialog {
     private JTextField textConnectionPort;
     private JTextField textName;
     
-    private Settings settings;
+    private final Settings settings;
+    private boolean userSelectedConnect = false;
     
-    public SetupDialog(Settings settings) {
-    	
+    public SetupDialog(final Settings settings) {
+    	this.settings = settings;
     	this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    	this.setModal(true);
     	
         jLabel1 = new JLabel();
         jLabel2 = new JLabel();
@@ -51,10 +53,8 @@ public class SetupDialog extends JDialog {
         textConnectionAddress = new JTextField();
         textConnectionPort = new JTextField();
         comboSensorPort = new JComboBox();
-        comboSensorSpeed = new JComboBox();
+        comboSensorSpeed = new JComboBox<Integer>();
         buttonConnect = new JButton();
-
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("DejaVu Serif", 1, 18));
         jLabel1.setText("Settings");
@@ -70,7 +70,7 @@ public class SetupDialog extends JDialog {
         jLabel4.setHorizontalAlignment(SwingConstants.TRAILING);
         jLabel4.setText("Connection port");
 
-        comboSensorPort.setModel(new DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboSensorPort.setModel(new DefaultComboBoxModel(new String[] { "/dev/tty.usbserial-A501S2BY", "/dev/ttyUSB0", "/dev/ttyUSB0" }));
         comboSensorPort.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 //TODO
@@ -86,7 +86,7 @@ public class SetupDialog extends JDialog {
         jLabel7.setFont(new java.awt.Font("DejaVu Serif", 1, 12));
         jLabel7.setText("Sensor");
 
-        comboSensorSpeed.setModel(new DefaultComboBoxModel(new String[] { "38400" }));
+        comboSensorSpeed.setModel(new DefaultComboBoxModel(new Integer[] { 38400, 9600 }));
         comboSensorSpeed.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 //TODO
@@ -99,7 +99,21 @@ public class SetupDialog extends JDialog {
         buttonConnect.setText("Connect");
         buttonConnect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                //TODO:
+            	userSelectedConnect = true;
+            	
+            	settings.setPlayerName(textName.getText());
+            	settings.setServerAddress(textConnectionAddress.getText());
+            	try {
+            		settings.setServerPort(Integer.parseUnsignedInt(textConnectionPort.getText()));
+            	} catch (NumberFormatException e){
+            		settings.setServerPort(4575);
+            	}
+            	
+            	settings.setSensorPort(comboSensorPort.getSelectedItem().toString());
+            	settings.setSensorSpeed((int)comboSensorSpeed.getSelectedItem());
+            	
+            	settings.print();
+            	SetupDialog.this.dispose();
             }
         });
 
@@ -182,7 +196,6 @@ public class SetupDialog extends JDialog {
 	}
 
 	public Settings getSettings() {
-		
 		return settings;
 	}
 }

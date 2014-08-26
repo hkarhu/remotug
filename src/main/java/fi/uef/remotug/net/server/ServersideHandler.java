@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ServerHandler extends ChannelHandlerAdapter {
+public class ServersideHandler extends ChannelHandlerAdapter {
 	
 	private ChannelGroup allClients;
 
@@ -25,7 +25,7 @@ public class ServerHandler extends ChannelHandlerAdapter {
 	
 	private int playerIDs = 0;
 	
-	public ServerHandler(ChannelGroup allClients) {
+	public ServersideHandler(ChannelGroup allClients) {
 		this.allClients = allClients;
 	}
 	

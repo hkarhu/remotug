@@ -13,65 +13,62 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.Timer;
+import javax.swing.JOptionPane;
 
 import fi.conf.ae.routines.S;
 import fi.uef.remotug.net.BasePacket;
-import fi.uef.remotug.net.ConnectPacket;
+import fi.uef.remotug.net.DataPacket;
 import fi.uef.remotug.sensor.SensorListener;
 
 public class Connection implements SensorListener {
 
 	private List<ConnectionListener> serverListeners = new ArrayList<>();
 
-	private Timer simulationTimer;
-
 	private final EventLoopGroup workerGroup = new NioEventLoopGroup();
 	private Channel myChannel;
-
+	
 	public Connection(String address, int port) throws RuntimeException {
 
+		S.debug("Establishing connection to " + address + ":" + port);
+		
 		Bootstrap b = new Bootstrap()
-		.group(workerGroup)
-		.channel(NioSocketChannel.class)
-		.option(ChannelOption.SO_KEEPALIVE, true)
-		.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
-		.handler(new ChannelInitializer<SocketChannel>() {
-			@Override
-			public void initChannel(SocketChannel ch) throws Exception {
-				ch.pipeline()
-				.addLast(new ObjectEncoder())
-				.addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(null)))
-				.addLast(new ClientHandler())
-				;
-			}
-		});
+			.group(workerGroup)
+			.channel(NioSocketChannel.class)
+			.option(ChannelOption.SO_KEEPALIVE, true)
+			.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
+			.handler(new ChannelInitializer<SocketChannel>() {
+				@Override
+				public void initChannel(SocketChannel ch) throws Exception {
+					ch.pipeline()
+	            		//.addLast(new LoggingHandler(LogLevel.TRACE))
+						.addLast(new ObjectEncoder())
+						.addLast(new ObjectDecoder(ClassResolvers.softCachingConcurrentResolver(getClass().getClassLoader())))
+						.addLast(new ClientsideHandler(serverListeners));
+				}
+			});
 
-		RuntimeException ex = null;
-		try {
-			ChannelFuture f = b.connect(address, port).sync();
+		ChannelFuture f;
+		f = b.connect(address, port);
+		
+		f.awaitUninterruptibly(5000);
 
-			if (!f.isSuccess()) {
-				throw new RuntimeException(f.cause());
-			}
-
-			System.out.println("[client] connected.");
-			
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-
-		} finally {
-			if (ex != null) {
-				close();
-				throw ex;
-			}
+		if (!f.isSuccess()) {
+			JOptionPane.showMessageDialog(null, f.cause().getMessage(), "Connection error", JOptionPane.ERROR_MESSAGE);
+			myChannel = null;
+			return;
+		} else {
+			myChannel = f.channel();
 		}
-
+		
+		S.debug("Connection succesfully created.");
+		
+	}
+	
+	public boolean isConnected(){
+		return myChannel != null;
 	}
 
 	public void addListener(ConnectionListener listener) {
@@ -83,15 +80,13 @@ public class Connection implements SensorListener {
 	}
 
 	public void close(){
+		myChannel = null;
 		workerGroup.shutdownGracefully();
 	}
 
 	@Override
-	public void newSensorDataArrived(float balance) {
-		S.debug("Balance: " + balance);
-		for(ConnectionListener l : serverListeners){
-			l.gameBalanceChanged(balance);
-		}
+	public void newSensorDataArrived(float kg) {
+		myChannel.writeAndFlush(new DataPacket(kg));
 	}
 }
 

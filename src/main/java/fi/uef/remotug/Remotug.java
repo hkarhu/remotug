@@ -2,6 +2,8 @@ package fi.uef.remotug;
 
 import java.io.IOException;
 
+import javax.swing.JOptionPane;
+
 import fi.conf.ae.routines.S;
 import fi.uef.remotug.net.ConnectPacket;
 import fi.uef.remotug.net.client.Connection;
@@ -29,10 +31,16 @@ public class Remotug {
 		}
 		
 		S.debug("Creating connection to server...");
-		connection = new Connection(settings.getServerAddress(), settings.getServerPort());
-		connection.writePacket(new ConnectPacket(settings.getPlayerName()));
-
 		
+		connection = new Connection(settings.getServerAddress(), settings.getServerPort());
+		if(!connection.isConnected()) {
+			connection.close();
+			return;
+		} else {
+			connection.writePacket(new ConnectPacket(settings.getPlayerName()));	
+		}
+		
+
 		S.debug("Creating connection to sensor...");
 		sensor = new Sensor(settings.getSensorPort(), settings.getSensorSpeed());
 		
@@ -41,8 +49,7 @@ public class Remotug {
 		sensor.addListener(gui);
 		
 		try {
-			sensor.start("/dev/tty.usbserial-A501S2BY");
-			//sensor.start("");
+			sensor.start();
 		} catch (NoSuchPortException | PortInUseException | UnsupportedCommOperationException | IOException e) {
 			e.printStackTrace();
 		}
@@ -53,5 +60,7 @@ public class Remotug {
 		gui.startGL();
 		
 	}
+	
+	
 	
 }

@@ -20,12 +20,15 @@ public class Sensor {
 	private final List<SensorListener> sensorListeners = new ArrayList<>();
 	private static boolean continueToRead;
 	private Thread readerThread; 
+	private String portName = "/dev/ttyUSB0";
+	private int baudRate = 38400;
 	
-	public Sensor(String sensorPort, int sensorSpeed) {
-		// TODO Auto-generated constructor stub
+	public Sensor(String portName, int baudRate) {
+		this.portName = portName;
+		this.baudRate = baudRate;
 	}
 
-	public void start(String portName) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+	public void start() throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
 		
 		continueToRead = true;
 		
@@ -67,7 +70,7 @@ public class Sensor {
 
 			if ( commPort instanceof SerialPort ) {
 				SerialPort serialPort = (SerialPort) commPort;
-				serialPort.setSerialPortParams(38400, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+				serialPort.setSerialPortParams(baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 				final InputStream in = serialPort.getInputStream();
 				S.debug("Connected serial device %s @ %s", serialPort.getName(), serialPort.getBaudBase());
 				readerThread = new Thread(new Runnable() {
