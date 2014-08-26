@@ -15,9 +15,10 @@ import fi.conf.ae.gl.text.GLBitmapFontBlitter;
 import fi.conf.ae.gl.text.GLBitmapFontBlitter.Alignment;
 import fi.conf.ae.gl.texture.GLTextureManager;
 import fi.uef.remotug.gl.ModelManager;
+import fi.uef.remotug.net.client.ConnectionListener;
 import fi.uef.remotug.sensor.SensorListener;
 
-public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnectionListener, SensorListener {
+public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionListener, SensorListener {
 
 	private static final int ROUND_TIME = 30;
 	
@@ -28,6 +29,9 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 	private float lt = 0;
 	private int winner = -1;
 
+	private LocalPowerMeter localPowerMeter = new LocalPowerMeter();
+	private PowerMeter remotePowerMeter = new PowerMeter();
+	
 	@Override
 	public boolean glInit() {
 
@@ -78,7 +82,6 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 		ModelManager.getInstance().loadModel(this.getClass().getResourceAsStream("/map.rawgl"), "map");
 		ModelManager.getInstance().loadModel(this.getClass().getResourceAsStream("/rope.rawgl"), "rope");
 		
-		
 		startTime = System.currentTimeMillis();
 
 		return true;
@@ -115,7 +118,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
         fb.clear();
         
         GL11.glEnable(GL11.GL_LIGHT0);
-//		
+        
 		GLValues.cameraPositionX = (float) (6*Math.sin(0.25f*balance));
 		GLValues.cameraPositionY = (float) (6*Math.cos(0.25f*balance));
 		GLValues.cameraPositionZ = -3;
@@ -128,11 +131,10 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 		
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
-			GLTextureManager.getInstance().bindTexture("map");
-			ModelManager.getInstance().getModel("map").glDraw();
-
-			GLTextureManager.getInstance().bindTexture("rope");
-			ModelManager.getInstance().getModel("rope").glShiftDraw(balance*5);
+//			GLTextureManager.getInstance().bindTexture("map");
+//			ModelManager.getInstance().getModel("map").glDraw();
+//			GLTextureManager.getInstance().bindTexture("rope");
+//			ModelManager.getInstance().getModel("rope").glShiftDraw(balance*5);
 		GL11.glPopMatrix();
 
 		//Swap to orthogonal projection
@@ -148,11 +150,11 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 			
 			GL11.glTranslatef(0, GLValues.glHeight*0.8f, 0);
 			
-			if(winner < 0){
-				GLBitmapFontBlitter.drawString(String.format("%.02f s", ROUND_TIME - (System.currentTimeMillis()-resetTime)*0.001f), "font", 0.3f, 0.35f, Alignment.CENTERED);
-			} else {
-				GLBitmapFontBlitter.drawString("LOL WIN", "font", 0.3f, 0.35f, Alignment.CENTERED);
-			}
+//			if(winner < 0){
+//				GLBitmapFontBlitter.drawString(String.format("%.02f s", ROUND_TIME - (System.currentTimeMillis()-resetTime)*0.001f), "font", 0.3f, 0.35f, Alignment.CENTERED);
+//			} else {
+//				GLBitmapFontBlitter.drawString("LOL WIN", "font", 0.3f, 0.35f, Alignment.CENTERED);
+//			}
 		GL11.glPopMatrix();
 	}
 
@@ -169,18 +171,15 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ServerConnect
 	}
 
 	@Override
-	public void glKeyDown(int eventKey, char keyChar) {
+	public void glKeyDown(int eventKey, char keyChar) {}
+
+	@Override
+	public void glKeyUp(int eventKey, char keyChar) {
 		//Reset game
 		if(eventKey == Keyboard.KEY_SPACE){
 			resetTime = System.currentTimeMillis();
 			winner = -1;
 		}
-	}
-
-	@Override
-	public void glKeyUp(int eventKey, char keyChar) {
-		// TODO Auto-generated method stub
-
 	}
 
 

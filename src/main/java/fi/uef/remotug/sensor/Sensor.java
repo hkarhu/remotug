@@ -21,6 +21,10 @@ public class Sensor {
 	private static boolean continueToRead;
 	private Thread readerThread; 
 	
+	public Sensor(String sensorPort, int sensorSpeed) {
+		// TODO Auto-generated constructor stub
+	}
+
 	public void start(String portName) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
 		
 		continueToRead = true;
