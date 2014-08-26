@@ -3,6 +3,7 @@ package fi.uef.remotug;
 import java.io.IOException;
 
 import fi.conf.ae.routines.S;
+import fi.uef.remotug.net.ConnectPacket;
 import fi.uef.remotug.net.client.Connection;
 import fi.uef.remotug.sensor.Sensor;
 import gnu.io.NoSuchPortException;
@@ -29,6 +30,8 @@ public class Remotug {
 		
 		S.debug("Creating connection to server...");
 		connection = new Connection(settings.getServerAddress(), settings.getServerPort());
+		connection.writePacket(new ConnectPacket(settings.getPlayerName()));
+
 		
 		S.debug("Creating connection to sensor...");
 		sensor = new Sensor(settings.getSensorPort(), settings.getSensorSpeed());

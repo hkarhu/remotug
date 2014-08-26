@@ -60,10 +60,8 @@ public class Connection implements SensorListener {
 				throw new RuntimeException(f.cause());
 			}
 
-			System.out.println("[client] connected. Sending handshake.");
-
-			f.channel().writeAndFlush(//TODO connect paketti tähän);
-
+			System.out.println("[client] connected.");
+			
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 
