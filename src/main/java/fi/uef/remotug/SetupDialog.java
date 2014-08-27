@@ -1,19 +1,21 @@
 package fi.uef.remotug;
 
+import gnu.io.CommPortIdentifier;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
 
 public class SetupDialog extends JDialog {
 
@@ -34,6 +36,22 @@ public class SetupDialog extends JDialog {
     
     private final Settings settings;
     private boolean userSelectedConnect = false;
+    
+    private static String[] listSerialPorts() {
+    	 
+        Enumeration ports = CommPortIdentifier.getPortIdentifiers();
+        ArrayList portList = new ArrayList();
+        portList.add("emulation");
+        String portArray[] = null;
+        while (ports.hasMoreElements()) {
+            CommPortIdentifier port = (CommPortIdentifier) ports.nextElement();
+            if (port.getPortType() == CommPortIdentifier.PORT_SERIAL) {
+                portList.add(port.getName());
+            }
+        }
+        portArray = (String[]) portList.toArray(new String[0]);
+        return portArray;
+    }
     
     public SetupDialog(final Settings settings) {
     	this.settings = settings;
@@ -72,7 +90,9 @@ public class SetupDialog extends JDialog {
         jLabel4.setHorizontalAlignment(SwingConstants.TRAILING);
         jLabel4.setText("Connection port");
 
-        comboSensorPort.setModel(new DefaultComboBoxModel(new String[] {  "emulation", "/dev/tty.usbserial-A501S2BY", "/dev/ttyUSB0", "/dev/ttyACM0" }));
+        String[] ports = listSerialPorts();
+        
+        comboSensorPort.setModel(new DefaultComboBoxModel(ports));
         comboSensorPort.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 //TODO

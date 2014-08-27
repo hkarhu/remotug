@@ -5,7 +5,7 @@ public class ConnectPacket extends BasePacket {
 	private String name;
 
 	public ConnectPacket(String playerName) {
-		this.id = 0;
+		this.id = -1;
 		this.name = playerName;
 	}
 	

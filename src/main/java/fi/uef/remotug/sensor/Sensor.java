@@ -33,7 +33,7 @@ public class Sensor {
 		continueToRead = true;
 
 		if(portName == "emulation"){
-			S.debug("Port name empty, initializing fake data provider");
+			S.debug("Initializing data emulator");
 
 			readerThread = new Thread(new Runnable() {
 
