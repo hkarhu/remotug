@@ -1,6 +1,12 @@
 package fi.uef.remotug.net.server;
 
+import fi.uef.remotug.net.ConnectPacket;
+import fi.uef.remotug.net.DataPacket;
+import fi.uef.remotug.net.EndPacket;
+import fi.uef.remotug.net.ReadyPacket;
+import fi.uef.remotug.net.StartPacket;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -18,30 +24,45 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RemotugServer {
 
+	public static final int NO_ACTIVE_MATCH = -1;
+	public static final int MATCH_LENGTH = 30000;
+	private final ConcurrentHashMap<Player, Channel> playerToChannelMap = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Channel, Player> channelToPlayerMap = new ConcurrentHashMap<>();
+	
+	private int playerIDs = 0;
+	private long matchStarted = NO_ACTIVE_MATCH;
+	
 	private final ChannelGroup allClients;
 	private final EventLoopGroup acceptEventLoopGroup;
 	private final EventLoopGroup workerEventLoopGroup;
-	private final ServersideHandler serversideHandler;
+	private final List<ServersideHandler> serversideHandlers;
+	
 	public RemotugServer(String addr, int port) throws RuntimeException {
 		acceptEventLoopGroup = new NioEventLoopGroup();
 		workerEventLoopGroup = new NioEventLoopGroup();
 		allClients = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
+		serversideHandlers = new ArrayList<ServersideHandler>();
 		// --
 		
 		ServerBootstrap bootstrap = new ServerBootstrap();
-		serversideHandler = new ServersideHandler(allClients);
 		bootstrap.group(acceptEventLoopGroup, workerEventLoopGroup)
 				.channel(NioServerSocketChannel.class)
 //				.handler(new LoggingHandler(LogLevel.TRACE))
 				.childHandler(new ChannelInitializer<SocketChannel>() {
 					@Override
 					public void initChannel(SocketChannel ch) throws Exception {
+						ServersideHandler serversideHandler = new ServersideHandler(allClients, RemotugServer.this);
+						serversideHandlers.add(serversideHandler);
 						ch.pipeline()
 	            			.addLast(new LoggingHandler(LogLevel.DEBUG))
 	            			.addLast(new ObjectEncoder())
@@ -64,12 +85,13 @@ public class RemotugServer {
 			Timer timer = new Timer();
 			timer.scheduleAtFixedRate(new TimerTask() {
 				  public void run() {
-					  serversideHandler.calculateAndSendBalances();
+					  
+					  calculateAndSendBalances();
 					  
 					  long matchStarted = 0;
-					  if((matchStarted = serversideHandler.matchStarted()) != ServersideHandler.NO_ACTIVE_MATCH) {
-						  if(System.currentTimeMillis() - matchStarted >= ServersideHandler.MATCH_LENGTH) {
-							  serversideHandler.endActiveMatch();
+					  if((matchStarted = matchStarted()) != NO_ACTIVE_MATCH) {
+						  if(System.currentTimeMillis() - matchStarted >= MATCH_LENGTH) {
+							  endActiveMatch();
 						  }
 					  }
 				  }
@@ -89,6 +111,127 @@ public class RemotugServer {
 	public void shutdown() {
 		acceptEventLoopGroup.shutdownGracefully();
 		workerEventLoopGroup.shutdownGracefully();
+	}
+	
+	public void playerReady(Channel channel) {
+		Player player = this.channelToPlayerMap.get(channel);
+		player.setReadyForMatch(true);
+		
+		int readyPlayers = 0;
+		for(Player p: this.channelToPlayerMap.values()) {
+			if(p.isReadyForMatch()) readyPlayers++;
+		}
+		
+		this.allClients.writeAndFlush(new ReadyPacket(player.getId()));
+		
+		if(readyPlayers == this.channelToPlayerMap.size()) {
+			System.out.println("[server] starting a new match in 5 seconds");
+			Timer timer = new Timer();
+			timer.schedule(new TimerTask() {
+				  public void run() {
+					  startMatch();
+				  }
+				}, 5000);
+		} else {
+			System.out.println("[server] " + readyPlayers + "/" + this.channelToPlayerMap.size() + " players are ready");
+		}
+	}
+	
+	private void startMatch() {
+		System.out.println("[server] match started");
+		for(Player p: this.channelToPlayerMap.values()) {
+			p.resetRopePos();
+		}
+		this.matchStarted = System.currentTimeMillis();
+		this.allClients.writeAndFlush(new StartPacket(this.matchStarted));
+	}
+	
+	public void endActiveMatch() {
+		System.out.println("[server] match ended");
+		determineAndAnnounceWinner();
+		
+		for(Player p: this.channelToPlayerMap.values()) {
+			p.setReadyForMatch(false);
+		}
+		
+		this.matchStarted = NO_ACTIVE_MATCH;
+	}
+	
+	public long matchStarted() {
+		return this.matchStarted;
+	}
+	
+	private void determineAndAnnounceWinner() {
+		float bestRopePos = -1;
+		Player winner = null;
+		for(Player p: this.channelToPlayerMap.values()) {
+			if(p.getRopePos() > bestRopePos) winner = p;
+		}
+		System.out.println("[server] match winner > " + winner.getName() + ", " + winner.getId());
+		
+		this.allClients.writeAndFlush(new EndPacket(winner.getId()));
+	}
+	
+	public void calculateAndSendBalances() {
+		DataPacket dp = new DataPacket(-1);
+		HashMap<Integer, Float> balances = new HashMap<Integer, Float>();
+		for(Player p: channelToPlayerMap.values()) {
+			if(p.getId() > 0) {
+				balances.put(p.getId(), p.getBufferedKg());
+				calculateBalanceForPlayer(p);
+				//balances.put(p.getId(), calculateBalanceForPlayer(p));7
+			}
+		}
+		for(Player p: channelToPlayerMap.values()) {
+			float ropepos = calculateRopePositionForPlayer(p);
+	        dp.setBalances(balances);
+	        dp.setRopePos(ropepos);
+	        playerToChannelMap.get(p).writeAndFlush(dp);
+		}
+	}
+	
+	private float calculateBalanceForPlayer(Player player) {
+		float sum = 0;
+		for(Player p: channelToPlayerMap.values()) {
+	        sum += p.getBufferedKg();
+		}
+		float balance = player.getBufferedKg()/sum;
+		player.appendBalanceToRopePos(balance);
+		return balance;
+	}
+	
+	private float calculateRopePositionForPlayer(Player player) {
+		float sum = 0;
+		for(Player p: channelToPlayerMap.values()) {
+	        sum += p.getRopePos();
+		}
+		return (float) (((player.getRopePos() / sum) -0.5) * 2);
+	}
+	
+	public void addPlayer(String name, Channel c){
+		Player p = new Player(this.playerIDs++, name);
+		this.playerToChannelMap.put(p, c);
+		this.channelToPlayerMap.put(c, p);
+		printOnlinePlayers();
+	}
+	
+	public void removePlayer(Channel c) {
+		Player p = this.channelToPlayerMap.get(c);
+		this.channelToPlayerMap.remove(c);
+		this.playerToChannelMap.remove(p);
+		this.allClients.writeAndFlush(new ConnectPacket(p.getName(), p.getId()));
+		printOnlinePlayers();
+	}
+	public void updatePlayerKg(Channel channel, float kg) {
+		this.channelToPlayerMap.get(channel).addLatestKg(kg);
+	}
+	
+	private void printOnlinePlayers() {
+		System.out.print("[server] players online: ");
+		for(Player p: channelToPlayerMap.values()) {
+	        System.out.print("'" + p.getName() + "' ");
+		}
+		System.out.println();
 	}
 	
 	public static void main(String[] args) throws IOException {
