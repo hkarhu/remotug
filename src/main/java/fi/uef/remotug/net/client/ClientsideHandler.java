@@ -52,7 +52,7 @@ public class ClientsideHandler extends ChannelHandlerAdapter {
 		case start: 
 			StartPacket sp = (StartPacket)p;
 			System.out.println("[client] match starting in 5 secs");
-			startAnnounced(sp.getStartTime());
+			startAnnounced(sp.getStartTime(), sp.getMatchDuration(), sp.getMatchStartDelay());
 			break;
 		case data: 
 			DataPacket dp = (DataPacket)p;
@@ -81,9 +81,9 @@ public class ClientsideHandler extends ChannelHandlerAdapter {
 		}
 	}
 	
-	private void startAnnounced(long serverTime) {
+	private void startAnnounced(long serverTime, int duration, int delay) {
 		for(ConnectionListener l: this.serverListeners) {
-			l.startAnnounced(serverTime);
+			l.startAnnounced(serverTime, duration, delay);
 		}
 	}
 	

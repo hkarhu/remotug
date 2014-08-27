@@ -19,7 +19,7 @@ public class StartPacket extends BasePacket{
 		return this.matchDuration;
 	}
 	
-	public long getMatchStartDelay() {
+	public int getMatchStartDelay() {
 		return this.matchStartDelay;
 	}
 	

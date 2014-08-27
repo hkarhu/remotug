@@ -42,6 +42,8 @@ public class SetupDialog extends JDialog {
         Enumeration ports = CommPortIdentifier.getPortIdentifiers();
         ArrayList portList = new ArrayList();
         portList.add("emulation");
+        //portList.add("/dev/ttyACM0");
+        //portList.add("/dev/ttyUSB0");
         String portArray[] = null;
         while (ports.hasMoreElements()) {
             CommPortIdentifier port = (CommPortIdentifier) ports.nextElement();

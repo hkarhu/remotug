@@ -60,6 +60,8 @@ public class Remotug {
 		
 		gui.startGL();
 		
+		shutdown();
+		
 	}
 	
 	public static void shutdown(){

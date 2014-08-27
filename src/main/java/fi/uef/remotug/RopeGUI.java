@@ -26,8 +26,9 @@ import fi.uef.remotug.sensor.SensorListener;
 
 public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionListener, SensorListener {
 
-	private static final int ROUND_TIME = 30;
-	
+    private final float SCALER = 2280f;
+    
+    private int matchDuration = 30;
 	private long startTime = 0;
 	private long resetTime = 0;
 	private volatile float balance = 0;
@@ -258,7 +259,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	
 	@Override
 	public void newSensorDataArrived(float kg) {
-		localPowerMeter.setLocalForce(kg/500.0f);
+		localPowerMeter.setLocalForce(kg/SCALER);
 	}
 
 	@Override
@@ -267,7 +268,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		this.balance = balance;
 		
 		if(balances.containsKey(Remotug.settings.getPlayerID())){
-			localPowerMeter.setForce(balances.get(Remotug.settings.getPlayerID())/500f);
+			localPowerMeter.setForce(balances.get(Remotug.settings.getPlayerID())/SCALER);
 		} else {
 			System.out.println("No my key in hashmap, " + Remotug.settings.getPlayerID());
 			return;
@@ -275,7 +276,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		
 		for(Entry<Integer, Float> e : balances.entrySet()){
 			if(e.getKey() != Remotug.settings.getPlayerID()){
-				remotePowerMeter.setForce(e.getValue()/500f);
+				remotePowerMeter.setForce(e.getValue()/SCALER);
 			}
 			System.out.println(e.getKey() + " " + e.getValue());
 		}
@@ -298,12 +299,12 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		gameOn = false;
 	}
 	
-	public void startAnnounced(long serverTime) {
+	@Override
+	public void startAnnounced(long serverTime, int duration, int delay) {
 		localPlayerReady = false;
 		remotePlayerReady = false;
 		gameOn = true;
 	}
-	
 	
 
 }
