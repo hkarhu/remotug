@@ -145,6 +145,10 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		GL11.glColor4f(1, 1, 1,1);
 		
 		GL11.glPushMatrix();
+		
+			localPowerMeter.glDraw();
+			remotePowerMeter.glDraw();
+		
 			GL11.glTranslatef(GLValues.glWidth/2, 0.5f, 5);
 			GLBitmapFontBlitter.drawString(String.format("%+.03f", balance), "font", 0.3f, 0.35f, Alignment.CENTERED);
 			
@@ -181,21 +185,31 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			winner = -1;
 		}
 	}
-
-
-	@Override //This will most likely to be called from another thread, so ensure thread safety
-	public void gameBalanceChanged(float balance) {
-		this.balance = balance;
-	}
-
-	@Override
-	public void winnerAnnounced(int winnerID) {
-		winner = winnerID;
-	}
-
+	
 	@Override
 	public void newSensorDataArrived(float kg) {
 		
 	}
+
+	@Override
+	public void gameValuesChanged(float balance, float localForce,
+			float remoteForce) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void readyAnnounced(int playerID) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void winnerAnnounced(int winnerID) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
 
 }

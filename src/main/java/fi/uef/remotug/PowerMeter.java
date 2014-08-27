@@ -5,7 +5,7 @@ import fi.conf.ae.gl.texture.GLTextureManager;
 
 public class PowerMeter {
 
-	private float force = 0;
+	protected volatile float force = 0;
 	
 	public void glDraw(){
 		
@@ -15,6 +15,10 @@ public class PowerMeter {
 		GLTextureManager.getInstance().bindTexture("meter_indicator");
 		GLGraphicRoutines.draw2DRect(-0.1f, -0.1f, 0.9f, 0.1f, 0);
 		
+	}
+	
+	public void setForce(float force){
+		this.force = force;
 	}
 	
 }

@@ -3,9 +3,9 @@ package fi.uef.remotug;
 import fi.conf.ae.gl.GLGraphicRoutines;
 import fi.conf.ae.gl.texture.GLTextureManager;
 
-public class LocalPowerMeter {
+public class LocalPowerMeter extends PowerMeter {
 
-	private float force = 0;
+	private volatile float localForce = 0;
 	
 	public void glDraw(){
 		
@@ -17,4 +17,8 @@ public class LocalPowerMeter {
 		
 	}
 	
+	public void setLocalForce(float localForce){
+		this.localForce = localForce;
+	}
+
 }
