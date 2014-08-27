@@ -1,7 +1,7 @@
 package fi.uef.remotug.net.server;
 
 public class Player {
-	private int id = 0;
+	private int id = -1;
 	private String name = "null";
 	private float bufferedKg = 0;
 	private float ropePos = 0;
@@ -11,7 +11,7 @@ public class Player {
 	public Player(int id, String name) {
 		this.id = id;
 		this.name = name;
-		System.out.println("[server] new player > " + name + ", " + id);
+		System.out.println("[server] new player > '" + name + "', " + id);
 	}
 	
 	public int getId() {
@@ -35,14 +35,14 @@ public class Player {
 	}
 
 	public void addLatestKg(float latestKg) {
-		this.bufferedKg = (latestKg + this.bufferedKg * 5) / 6;
+		this.bufferedKg = (latestKg + this.bufferedKg * 2) / 3;
 	}
 
 	public float getRopePos() {
 		return ropePos;
 	}
 	
-	public void appendBalanceToRoperPos(float balance) {
+	public void appendBalanceToRopePos(float balance) {
 		this.ropePos += balance;
 	}
 	

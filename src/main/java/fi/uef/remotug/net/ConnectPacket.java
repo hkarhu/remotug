@@ -9,6 +9,11 @@ public class ConnectPacket extends BasePacket {
 		this.name = playerName;
 	}
 	
+	public ConnectPacket(String playerName, int id) {
+		this.id = id;
+		this.name = playerName;
+	}
+	
 	public void setPlayerID(int id){
 		this.id = id;
 	}
