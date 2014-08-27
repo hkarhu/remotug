@@ -14,14 +14,14 @@ import gnu.io.UnsupportedCommOperationException;
 
 
 public class Remotug {
+	
+	private static Sensor sensor;
+	private static Connection connection;
+	private static RopeGUI gui;
 	public static Settings settings = Settings.loadSettings();
 	
 	public static void main(String[] args) {
-		
-		Sensor sensor;
-		Connection connection;
-		RopeGUI gui;
-		
+				
 		if(settings == null) settings = new Settings();
 		
 		SetupDialog s = new SetupDialog(settings);
@@ -34,8 +34,8 @@ public class Remotug {
 		
 		connection = new Connection(settings.getServerAddress(), settings.getServerPort());
 		if(!connection.isConnected()) {
-			connection.close();
-			//return;
+			shutdown();
+			return;
 		} else {
 			connection.writePacket(new ConnectPacket(settings.getPlayerName()));	
 		}
@@ -62,6 +62,11 @@ public class Remotug {
 		
 	}
 	
+	public static void shutdown(){
+		if(connection != null) connection.close();
+		if(gui != null) gui.requestClose();
+		if(sensor != null) sensor.stop();
+	}
 	
 	
 }

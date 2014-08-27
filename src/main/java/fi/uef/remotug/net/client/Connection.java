@@ -76,7 +76,7 @@ public class Connection implements SensorListener {
 	}
 
 	public void writePacket(BasePacket packet){
-		myChannel.writeAndFlush(packet);
+		if(myChannel != null) myChannel.writeAndFlush(packet);
 	}
 
 	public void close(){
