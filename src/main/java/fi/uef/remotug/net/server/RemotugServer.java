@@ -35,10 +35,11 @@ public class RemotugServer {
 
 	public static final int NO_ACTIVE_MATCH = -1;
 	public static final int MATCH_LENGTH = 30000;
+	public static final int MATCH_START_DELAY = 5000;
 	private final ConcurrentHashMap<Player, Channel> playerToChannelMap = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<Channel, Player> channelToPlayerMap = new ConcurrentHashMap<>();
 	
-	private int playerIDs = 0;
+	private int playerIDs = 1;
 	private long matchStarted = NO_ACTIVE_MATCH;
 	
 	private final ChannelGroup allClients;
@@ -131,7 +132,7 @@ public class RemotugServer {
 				  public void run() {
 					  startMatch();
 				  }
-				}, 5000);
+				}, MATCH_START_DELAY);
 		} else {
 			System.out.println("[server] " + readyPlayers + "/" + this.channelToPlayerMap.size() + " players are ready");
 		}
@@ -143,7 +144,7 @@ public class RemotugServer {
 			p.resetRopePos();
 		}
 		this.matchStarted = System.currentTimeMillis();
-		this.allClients.writeAndFlush(new StartPacket(this.matchStarted));
+		this.allClients.writeAndFlush(new StartPacket(this.matchStarted, this.MATCH_LENGTH, this.MATCH_START_DELAY));
 	}
 	
 	public void endActiveMatch() {
@@ -212,6 +213,7 @@ public class RemotugServer {
 		Player p = new Player(this.playerIDs++, name);
 		this.playerToChannelMap.put(p, c);
 		this.channelToPlayerMap.put(c, p);
+		this.allClients.writeAndFlush(new ConnectPacket(p.getName(), p.getId()));
 		printOnlinePlayers();
 	}
 	
@@ -219,7 +221,6 @@ public class RemotugServer {
 		Player p = this.channelToPlayerMap.get(c);
 		this.channelToPlayerMap.remove(c);
 		this.playerToChannelMap.remove(p);
-		this.allClients.writeAndFlush(new ConnectPacket(p.getName(), p.getId()));
 		printOnlinePlayers();
 	}
 	public void updatePlayerKg(Channel channel, float kg) {
