@@ -70,10 +70,14 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		//Create new instance for texture manager
 		new GLTextureManager(getExecutorService()).initialize();
 		
-		//Load all graphics
+		//Load all graphics TODO:kaikki loopissa
 		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/font_default.png"), "font");
 		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/map.png"), "map");
 		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/rope.png"), "rope");
+		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/meter_indicator.png"), "meter_indicator");
+		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/meter_face.png"), "meter_face");
+		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/rope_pos.png"), "rope_pos");
+		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/flag.png"), "flag");
 		
 		//Create new model manager instance
 		new ModelManager().initialize();
@@ -145,14 +149,47 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		GL11.glColor4f(1, 1, 1,1);
 		
 		GL11.glPushMatrix();
+	
+			GL11.glPushMatrix();
+				GL11.glTranslatef(GLValues.glWidth*0.82f, GLValues.glHeight*0.22f, 1);
+				GL11.glScalef(1, 1, 1);
+				remotePowerMeter.glDraw();
+			GL11.glPopMatrix();
 		
-			localPowerMeter.glDraw();
-			remotePowerMeter.glDraw();
-		
-			GL11.glTranslatef(GLValues.glWidth/2, 0.5f, 5);
-			GLBitmapFontBlitter.drawString(String.format("%+.03f", balance), "font", 0.3f, 0.35f, Alignment.CENTERED);
+			GL11.glPushMatrix();
+				GL11.glColor4f(1, 1, 1, 1);
+				GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.5f, 0);
+				GL11.glRotatef(-12, 0, 0, 1);
+				GL11.glPushMatrix();
+					GL11.glTranslatef(((float)Math.sin(lt*0.002f))*(GLValues.glHeight*0.5f+GLValues.glWidth*0.5f)*0.5f, 0, 0);
+					GLTextureManager.getInstance().bindTexture("rope_pos");
+					GLGraphicRoutines.draw2DRect(-GLValues.glWidth, -0.0625f*GLValues.glHeight, GLValues.glWidth, 0.0625f*GLValues.glHeight, 0);
+					GLTextureManager.getInstance().bindTexture("flag");
+					GLGraphicRoutines.draw2DRect(-0.2f, -0.2f, 0.2f, 0.75f, 0f);
+					GLTextureManager.unbindTexture();
+					GL11.glColor4f(1, 0, 0, 1);
+					GLGraphicRoutines.drawLine(0,-0.7f, 0, 1, 0, 0, 1.0f);
+				GL11.glPopMatrix();
+
+				GLTextureManager.unbindTexture();
+				GL11.glColor4f(1, 0, 0, 1);
+				GLGraphicRoutines.drawLine(0,-0.7f, 0, 1, -6, -6, 1.0f);
+			GL11.glPopMatrix();
 			
-			GL11.glTranslatef(0, GLValues.glHeight*0.8f, 0);
+			GL11.glPushMatrix();
+				GL11.glTranslatef(GLValues.glWidth*0.19f, GLValues.glHeight*0.75f, -1);
+				//GLBitmapFontBlitter.drawCircleString("Winner!   Winner!   Winner!   Winner!   ", 0.8f, 1, 1.25f + 0.3f*(float)(0.5f+0.5f*Math.sin(lt*0.002f)), lt*0.001f, "font");
+				localPowerMeter.glDraw();
+			GL11.glPopMatrix();
+			
+			
+			
+
+		
+//			GL11.glTranslatef(GLValues.glWidth/2, 0.5f, 5);
+//			GLBitmapFontBlitter.drawString(String.format("%+.03f", balance), "font", 0.3f, 0.35f, Alignment.CENTERED);
+//			
+//			GL11.glTranslatef(0, GLValues.glHeight*0.8f, 0);
 			
 //			if(winner < 0){
 //				GLBitmapFontBlitter.drawString(String.format("%.02f s", ROUND_TIME - (System.currentTimeMillis()-resetTime)*0.001f), "font", 0.3f, 0.35f, Alignment.CENTERED);

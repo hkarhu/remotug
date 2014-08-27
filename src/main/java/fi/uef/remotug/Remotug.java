@@ -35,7 +35,7 @@ public class Remotug {
 		connection = new Connection(settings.getServerAddress(), settings.getServerPort());
 		if(!connection.isConnected()) {
 			connection.close();
-			return;
+			//return;
 		} else {
 			connection.writePacket(new ConnectPacket(settings.getPlayerName()));	
 		}
