@@ -18,13 +18,15 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class RemotugServer {
 
 	private final ChannelGroup allClients;
 	private final EventLoopGroup acceptEventLoopGroup;
 	private final EventLoopGroup workerEventLoopGroup;
-
+	private final ServersideHandler serversideHandler;
 	public RemotugServer(String addr, int port) throws RuntimeException {
 		acceptEventLoopGroup = new NioEventLoopGroup();
 		workerEventLoopGroup = new NioEventLoopGroup();
@@ -33,7 +35,7 @@ public class RemotugServer {
 		// --
 		
 		ServerBootstrap bootstrap = new ServerBootstrap();
-
+		serversideHandler = new ServersideHandler(allClients);
 		bootstrap.group(acceptEventLoopGroup, workerEventLoopGroup)
 				.channel(NioServerSocketChannel.class)
 //				.handler(new LoggingHandler(LogLevel.TRACE))
@@ -44,7 +46,7 @@ public class RemotugServer {
 	            			.addLast(new LoggingHandler(LogLevel.DEBUG))
 	            			.addLast(new ObjectEncoder())
 							.addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(null)))
-							.addLast(new ServersideHandler(allClients))
+							.addLast(serversideHandler)
 							;
 					}
 				})
@@ -59,6 +61,19 @@ public class RemotugServer {
 			if (!f.isSuccess()) {
 				ex = new RuntimeException(f.cause());
 			}
+			Timer timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
+				  public void run() {
+					  serversideHandler.calculateAndSendBalances();
+					  
+					  long matchStarted = 0;
+					  if((matchStarted = serversideHandler.matchStarted()) != ServersideHandler.NO_ACTIVE_MATCH) {
+						  if(System.currentTimeMillis() - matchStarted >= ServersideHandler.MATCH_LENGTH) {
+							  serversideHandler.endActiveMatch();
+						  }
+					  }
+				  }
+				}, 1000, 100);
 			
 		} catch (InterruptedException e) {
 			ex = new RuntimeException(e);

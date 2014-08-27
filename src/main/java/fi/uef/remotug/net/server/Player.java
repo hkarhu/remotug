@@ -4,11 +4,14 @@ public class Player {
 	private int id = 0;
 	private String name = "null";
 	private float bufferedKg = 0;
+	private float ropePos = 0;
+
+	private boolean readyForMatch = false;
 
 	public Player(int id, String name) {
 		this.id = id;
 		this.name = name;
-		System.out.println("[new player] " + name + ", " + id);
+		System.out.println("[server] new player > " + name + ", " + id);
 	}
 	
 	public int getId() {
@@ -33,5 +36,25 @@ public class Player {
 
 	public void addLatestKg(float latestKg) {
 		this.bufferedKg = (latestKg + this.bufferedKg * 5) / 6;
+	}
+
+	public float getRopePos() {
+		return ropePos;
+	}
+	
+	public void appendBalanceToRoperPos(float balance) {
+		this.ropePos += balance;
+	}
+	
+	public void resetRopePos() {
+		this.ropePos = 0;
+	}
+	
+	public boolean isReadyForMatch() {
+		return readyForMatch;
+	}
+
+	public void setReadyForMatch(boolean readyForMatch) {
+		this.readyForMatch = readyForMatch;
 	}
 }

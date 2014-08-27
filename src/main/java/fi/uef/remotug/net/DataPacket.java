@@ -3,6 +3,7 @@ package fi.uef.remotug.net;
 public class DataPacket extends BasePacket {
 	private float kg = 0;
 	private float balance = 0;
+	private float ropepos = 0;
 
 	public DataPacket(float kg) {
 		this.kg = kg;
@@ -22,6 +23,14 @@ public class DataPacket extends BasePacket {
 
 	public void setBalance(float balance) {
 		this.balance = balance;
+	}
+	
+	public float getRopePos() {
+		return ropepos;
+	}
+
+	public void setRopePos(float ropepos) {
+		this.ropepos = ropepos;
 	}
 	
 	@Override

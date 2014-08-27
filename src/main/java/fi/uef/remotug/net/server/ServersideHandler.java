@@ -3,6 +3,8 @@ package fi.uef.remotug.net.server;
 import fi.uef.remotug.net.BasePacket;
 import fi.uef.remotug.net.ConnectPacket;
 import fi.uef.remotug.net.DataPacket;
+import fi.uef.remotug.net.EndPacket;
+import fi.uef.remotug.net.ReadyPacket;
 import fi.uef.remotug.net.StartPacket;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -13,10 +15,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.Map.Entry;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServersideHandler extends ChannelHandlerAdapter {
+	
+	public static final int NO_ACTIVE_MATCH = -1;
+	public static final int MATCH_LENGTH = 30000;
 	
 	private ChannelGroup allClients;
 
@@ -24,6 +31,7 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 	private final ConcurrentHashMap<Channel, Player> channelToPlayerMap = new ConcurrentHashMap<>();
 	
 	private int playerIDs = 0;
+	private long matchStarted = NO_ACTIVE_MATCH;
 	
 	public ServersideHandler(ChannelGroup allClients) {
 		this.allClients = allClients;
@@ -76,21 +84,21 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 		
 		switch (p.getType()) {
 		case connect:
-			System.out.println("[server] received connect-packet");
+			System.out.println("[server] received a connect-packet");
 			ConnectPacket cp = (ConnectPacket)p;
 			Player player = new Player(playerIDs++, cp.getPlayerName());
 			addPlayer(player, ctx.channel());
 			allClients.writeAndFlush(cp);
 			break;
-		case start: 
-			System.out.println("[server] received start-packet");
-			StartPacket sp = (StartPacket)p;
+		case ready: 
+			System.out.println("[server] received a ready-packet");
+			ReadyPacket rp = (ReadyPacket)p;
+			playerReady(this.channelToPlayerMap.get(ctx.channel()));
 			break;
 		case data: 
-			System.out.println("[server] received data-packet");
+			System.out.println("[server] received a data-packet");
 			DataPacket dp = (DataPacket)p;
 			channelToPlayerMap.get(ctx.channel()).addLatestKg(dp.getKg());
-			calculateAndSendBalances(dp);
 			break;
 		//case stop: break;
 
@@ -109,10 +117,69 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 		this.allClients.remove(channel);
 	}
 	
-	private void calculateAndSendBalances(DataPacket dp) {
+	private void playerReady(Player player) {
+		player.setReadyForMatch(true);
+		
+		boolean allReady = true;
+		for(Player p: this.channelToPlayerMap.values()) {
+			if(!p.isReadyForMatch()) allReady = false;
+		}
+		
+		this.allClients.writeAndFlush(new ReadyPacket(player.getId()));
+		
+		if(allReady) {
+			System.out.println("[server] starting a new match in 5 seconds");
+			Timer timer = new Timer();
+			timer.schedule(new TimerTask() {
+				  public void run() {
+					  startMatch();
+				  }
+				}, 5000);
+		}
+	}
+	
+	private void startMatch() {
+		System.out.println("[server] match started");
+		for(Player p: this.channelToPlayerMap.values()) {
+			p.resetRopePos();
+		}
+		this.matchStarted = System.currentTimeMillis();
+		this.allClients.writeAndFlush(new StartPacket(this.matchStarted));
+	}
+	
+	public void endActiveMatch() {
+		System.out.println("[server] match ended");
+		determineAndAnnounceWinner();
+		
+		for(Player p: this.channelToPlayerMap.values()) {
+			p.setReadyForMatch(false);
+		}
+		
+		this.matchStarted = NO_ACTIVE_MATCH;
+	}
+	
+	public long matchStarted() {
+		return this.matchStarted;
+	}
+	
+	private void determineAndAnnounceWinner() {
+		float bestRopePos = -1;
+		Player winner = null;
+		for(Player p: this.channelToPlayerMap.values()) {
+			if(p.getRopePos() > bestRopePos) winner = p;
+		}
+		System.out.println("[server] match winner > " + winner.getName() + ", " + winner.getId());
+		
+		this.allClients.writeAndFlush(new EndPacket(winner.getId()));
+	}
+	
+	public void calculateAndSendBalances() {
+		DataPacket dp = new DataPacket(-1);
 		for(Player p: channelToPlayerMap.values()) {
 			float balance = calculateBalanceForPlayer(p);
+			float ropepos = calculateRopePositionForPlayer(p);
 	        dp.setBalance(balance);
+	        dp.setRopePos(ropepos);
 	        playerToChannelMap.get(p).writeAndFlush(dp);
 		}
 	}
@@ -122,7 +189,17 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 		for(Player p: channelToPlayerMap.values()) {
 	        sum += p.getBufferedKg();
 		}
-		return player.getBufferedKg()/sum;
+		float balance = player.getBufferedKg()/sum;
+		player.appendBalanceToRoperPos(balance);
+		return balance;
+	}
+	
+	private float calculateRopePositionForPlayer(Player player) {
+		float sum = 0;
+		for(Player p: channelToPlayerMap.values()) {
+	        sum += p.getRopePos();
+		}
+		return (float) (((player.getRopePos() / sum) -0.5) * 2);
 	}
 	
 	private void addPlayer(Player p, Channel c){
