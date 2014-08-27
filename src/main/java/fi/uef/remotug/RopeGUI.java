@@ -222,7 +222,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 				if(!gameOn){
 					GL11.glColor4f(1, 1, 1, 1);
 					GL11.glTranslatef(GLValues.glWidth - ((lt%10000)*0.0001f)*GLValues.glWidth*3.5f, GLValues.glHeight*0.48f, -5);
-					GLBitmapFontBlitter.drawScrollerString("Game Over                 Press space for rematch!", 0.3f, 1f, -4, 0.25f, lt*0.005f - 0.75f, "font");
+					GLBitmapFontBlitter.drawScrollerString("Game Over                 Press space to begin a new match!", 0.3f, 1f, -4, 0.25f, lt*0.005f - 0.75f, "font");
 				}
 			} else {
 				GL11.glColor4f(1, 1, 1, 1);
@@ -263,8 +263,15 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 
 	@Override
 	public void gameValuesChanged(float balance, HashMap<Integer, Float> balances) {
+		if(balances == null || balances.isEmpty()) return;
 		this.balance = balance;
-		localPowerMeter.setForce(balances.get(Remotug.settings.getPlayerID())/500f);
+		
+		if(balances.containsKey(Remotug.settings.getPlayerID())){
+			localPowerMeter.setForce(balances.get(Remotug.settings.getPlayerID())/500f);
+		} else {
+			System.out.println("No my key in hashmap, " + Remotug.settings.getPlayerID());
+			return;
+		}
 		
 		for(Entry<Integer, Float> e : balances.entrySet()){
 			if(e.getKey() != Remotug.settings.getPlayerID()){
