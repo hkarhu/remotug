@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RemotugServer {
 
 	public static final int NO_ACTIVE_MATCH = -1;
+	public static final int MATCH_STARTING = -2;
 	public static final int MATCH_LENGTH = 30000;
 	public static final int MATCH_START_DELAY = 5000;
 	private final ConcurrentHashMap<Player, Channel> playerToChannelMap = new ConcurrentHashMap<>();
@@ -90,13 +91,13 @@ public class RemotugServer {
 					  calculateAndSendBalances();
 					  
 					  long matchStarted = 0;
-					  if((matchStarted = matchStarted()) != NO_ACTIVE_MATCH) {
+					  if((matchStarted = matchStarted()) != NO_ACTIVE_MATCH && matchStarted != MATCH_STARTING) {
 						  if(System.currentTimeMillis() - matchStarted >= MATCH_LENGTH) {
 							  endActiveMatch();
 						  }
 					  }
 				  }
-				}, 1000, 100);
+				}, 1000, 150);
 			
 		} catch (InterruptedException e) {
 			ex = new RuntimeException(e);
@@ -115,26 +116,30 @@ public class RemotugServer {
 	}
 	
 	public void playerReady(Channel channel) {
-		Player player = this.channelToPlayerMap.get(channel);
-		player.setReadyForMatch(true);
-		
-		int readyPlayers = 0;
-		for(Player p: this.channelToPlayerMap.values()) {
-			if(p.isReadyForMatch()) readyPlayers++;
-		}
-		
-		this.allClients.writeAndFlush(new ReadyPacket(player.getId()));
-		
-		if(readyPlayers == this.channelToPlayerMap.size()) {
-			System.out.println("[server] starting a new match in 5 seconds");
-			Timer timer = new Timer();
-			timer.schedule(new TimerTask() {
-				  public void run() {
-					  startMatch();
-				  }
-				}, MATCH_START_DELAY);
-		} else {
-			System.out.println("[server] " + readyPlayers + "/" + this.channelToPlayerMap.size() + " players are ready");
+		if(this.matchStarted == NO_ACTIVE_MATCH) {
+			Player player = this.channelToPlayerMap.get(channel);
+			player.setReadyForMatch(true);
+			
+			int readyPlayers = 0;
+			for(Player p: this.channelToPlayerMap.values()) {
+				if(p.isReadyForMatch()) readyPlayers++;
+			}
+			
+			this.allClients.writeAndFlush(new ReadyPacket(player.getId()));
+			
+			// && readyPlayers == this.channelToPlayerMap.size()
+			if(readyPlayers == 2) {
+				System.out.println("[server] starting a new match in 5 seconds");
+				this.matchStarted = MATCH_STARTING;
+				Timer timer = new Timer();
+				timer.schedule(new TimerTask() {
+					  public void run() {
+						  startMatch();
+					  }
+					}, MATCH_START_DELAY);
+			} else {
+				System.out.println("[server] " + readyPlayers + "/" + this.channelToPlayerMap.size() + " players are ready");
+			}
 		}
 	}
 	
@@ -240,9 +245,9 @@ public class RemotugServer {
 		
 		//RemoteClient c = new RemoteClient("127.0.0.1", 12345);
 		
-		System.out.println("read");
+		System.out.println("[server] online");
 		System.in.read();
-		System.out.println("shutdown");
+		System.out.println("[server] shutdown");
 		
 		//c.shutdown();
 		s.shutdown();

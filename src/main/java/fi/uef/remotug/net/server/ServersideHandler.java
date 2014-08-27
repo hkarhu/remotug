@@ -89,7 +89,7 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 			break;
 		case ready: 
 			System.out.println("[server] received a ready-packet");
-			if(server.matchStarted() != RemotugServer.NO_ACTIVE_MATCH){
+			if(server.matchStarted() != RemotugServer.NO_ACTIVE_MATCH || server.matchStarted() == RemotugServer.MATCH_STARTING){
 				System.out.println("[server] ready packet ignored because of ongoing match");
 				break;
 			}
