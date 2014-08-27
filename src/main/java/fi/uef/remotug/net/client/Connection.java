@@ -86,7 +86,7 @@ public class Connection implements SensorListener {
 
 	@Override
 	public void newSensorDataArrived(float kg) {
-		myChannel.writeAndFlush(new DataPacket(kg));
+		if(myChannel != null) myChannel.writeAndFlush(new DataPacket(kg));
 	}
 }
 

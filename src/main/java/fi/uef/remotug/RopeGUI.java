@@ -139,7 +139,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
         
 		GLValues.cameraPositionX = (float) (6*Math.sin(0.25f*balance));
 		GLValues.cameraPositionY = (float) (6*Math.cos(0.25f*balance));
-		GLValues.cameraPositionZ = -3;
+		GLValues.cameraPositionZ = -9;
 		GLValues.cameraRotationX = 0;
 		GLValues.cameraRotationY = 0;
 		GLValues.cameraRotationZ = -1;
@@ -149,10 +149,10 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
-//			GLTextureManager.getInstance().bindTexture("map");
-//			ModelManager.getInstance().getModel("map").glDraw();
-//			GLTextureManager.getInstance().bindTexture("rope");
-//			ModelManager.getInstance().getModel("rope").glShiftDraw(balance*5);
+			GLTextureManager.getInstance().bindTexture("map");
+			ModelManager.getInstance().getModel("map").glDraw();
+			GLTextureManager.getInstance().bindTexture("rope_pos");
+			ModelManager.getInstance().getModel("rope").glShiftDraw(balance*5);
 		GL11.glPopMatrix();
 
 		//Swap to orthogonal projection
@@ -193,6 +193,11 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			GL11.glPushMatrix();
 				GL11.glTranslatef(GLValues.glWidth*0.19f, GLValues.glHeight*0.75f, -1);
 				//GLBitmapFontBlitter.drawCircleString("Winner!   Winner!   Winner!   Winner!   ", 0.8f, 1, 1.25f + 0.3f*(float)(0.5f+0.5f*Math.sin(lt*0.002f)), lt*0.001f, "font");
+				
+				if(localPlayerReady){
+					GL11.glColor4f(0.3f, 1, 0.3f, 1);
+					GLBitmapFontBlitter.drawCircleString("Ready!   Ready!   Ready!   Ready!   ", 0.8f, 1, 1.25f + 0.3f*(float)(0.5f+0.5f*Math.sin(lt*0.002f)), lt*0.001f, "font");
+				}
 				localPowerMeter.glDraw();
 			GL11.glPopMatrix();
 			
@@ -204,8 +209,22 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 //			if(winner < 0){
 //				GLBitmapFontBlitter.drawString(String.format("%.02f s", ROUND_TIME - (System.currentTimeMillis()-resetTime)*0.001f), "font", 0.3f, 0.35f, Alignment.CENTERED);
 //			} else {
-//				GLBitmapFontBlitter.drawString("LOL WIN", "font", 0.3f, 0.35f, Alignment.CENTERED);
+//				GLBitmapFontBlitter.drawString("Game Over", "font", 0.3f, 0.35f, Alignment.CENTERED);
 //			}
+			
+			if(winner < 0){
+				if(!connection.isConnected()){
+					GL11.glColor4f(1, 1, 1, 1);
+					GL11.glTranslatef(GLValues.glWidth - ((lt%10000)*0.0001f)*GLValues.glWidth*3.5f, GLValues.glHeight*0.48f, -5);
+					GLBitmapFontBlitter.drawScrollerString("Game Over                 Press space for rematch!", 0.3f, 1f, -4, 0.25f, lt*0.005f - 0.75f, "font");
+				} else {
+					GL11.glColor4f(1, 1, 1, 1);
+					GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.48f, 0);
+					GLBitmapFontBlitter.drawString("Disconnected", "font", 0.3f, 0.35f, Alignment.CENTERED);
+				}
+			}
+			
+		
 		GL11.glPopMatrix();
 	}
 
@@ -234,7 +253,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	
 	@Override
 	public void newSensorDataArrived(float kg) {
-		
+		localPowerMeter.setLocalForce(kg/500.0f);
 	}
 
 	@Override
