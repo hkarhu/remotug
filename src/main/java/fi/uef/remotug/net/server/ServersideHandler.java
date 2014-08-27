@@ -92,6 +92,10 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 			break;
 		case ready: 
 			System.out.println("[server] received a ready-packet");
+			if(this.matchStarted != NO_ACTIVE_MATCH){
+				System.out.println("[server] ready packet ignored because of ongoing match");
+				break;
+			}
 			ReadyPacket rp = (ReadyPacket)p;
 			playerReady(this.channelToPlayerMap.get(ctx.channel()));
 			break;

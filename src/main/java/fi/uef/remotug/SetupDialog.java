@@ -72,7 +72,7 @@ public class SetupDialog extends JDialog {
         jLabel4.setHorizontalAlignment(SwingConstants.TRAILING);
         jLabel4.setText("Connection port");
 
-        comboSensorPort.setModel(new DefaultComboBoxModel(new String[] { "/dev/tty.usbserial-A501S2BY", "/dev/ttyUSB0", "/dev/ttyUSB0" }));
+        comboSensorPort.setModel(new DefaultComboBoxModel(new String[] {  "emulation", "/dev/tty.usbserial-A501S2BY", "/dev/ttyUSB0" }));
         comboSensorPort.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 //TODO

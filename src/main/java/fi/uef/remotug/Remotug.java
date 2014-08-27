@@ -20,8 +20,7 @@ public class Remotug {
 		
 		Sensor sensor;
 		Connection connection;
-		RopeGUI gui = new RopeGUI();
-		
+		RopeGUI gui;
 		
 		if(settings == null) settings = new Settings();
 		
@@ -41,6 +40,7 @@ public class Remotug {
 			connection.writePacket(new ConnectPacket(settings.getPlayerName()));	
 		}
 		
+		gui = new RopeGUI(connection);
 
 		S.debug("Creating connection to sensor...");
 		sensor = new Sensor(settings.getSensorPort(), settings.getSensorSpeed());

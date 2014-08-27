@@ -28,7 +28,7 @@ public class PowerMeter {
 			GLGraphicRoutines.draw2DRect(-0.12f*METER_SIZE, -0.12f*METER_SIZE, 0.8f*METER_SIZE, 0.12f*METER_SIZE, 0);
 		GL11.glPopMatrix();
 		
-		force = (float)(Math.sin((System.currentTimeMillis()-1409129465301l)*0.0002f)*0.5f+0.5f);
+		//force = (float)(Math.sin((System.currentTimeMillis()-1409129465301l)*0.0002f)*0.5f+0.5f);
 		
 	}
 	

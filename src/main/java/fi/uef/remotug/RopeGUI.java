@@ -2,6 +2,9 @@ package fi.uef.remotug;
 
 import java.nio.FloatBuffer;
 import java.util.HashMap;
+import java.util.Map.Entry;
+
+import javax.print.attribute.standard.MediaSize.Other;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
@@ -16,6 +19,8 @@ import fi.conf.ae.gl.text.GLBitmapFontBlitter;
 import fi.conf.ae.gl.text.GLBitmapFontBlitter.Alignment;
 import fi.conf.ae.gl.texture.GLTextureManager;
 import fi.uef.remotug.gl.ModelManager;
+import fi.uef.remotug.net.ReadyPacket;
+import fi.uef.remotug.net.client.Connection;
 import fi.uef.remotug.net.client.ConnectionListener;
 import fi.uef.remotug.sensor.SensorListener;
 
@@ -29,9 +34,17 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	private volatile float sensor = 0;
 	private float lt = 0;
 	private int winner = -1;
+	private boolean localPlayerReady = false;
+	private boolean otherPlayerReady = false;
 
 	private LocalPowerMeter localPowerMeter = new LocalPowerMeter();
 	private PowerMeter remotePowerMeter = new PowerMeter();
+	
+	private final Connection connection;
+	
+	public RopeGUI(Connection connection) {
+		this.connection = connection;
+	}
 	
 	@Override
 	public boolean glInit() {
@@ -162,7 +175,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 				GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.5f, 0);
 				GL11.glRotatef(-12, 0, 0, 1);
 				GL11.glPushMatrix();
-					GL11.glTranslatef(((float)Math.sin(lt*0.002f))*(GLValues.glHeight*0.5f+GLValues.glWidth*0.5f)*0.5f, 0, 0);
+					GL11.glTranslatef(balance*(GLValues.glHeight*0.5f+GLValues.glWidth*0.5f)*0.5f, 0, 0);
 					GLTextureManager.getInstance().bindTexture("rope_pos");
 					GLGraphicRoutines.draw2DRect(-GLValues.glWidth, -0.0625f*GLValues.glHeight, GLValues.glWidth, 0.0625f*GLValues.glHeight, 0);
 					GLTextureManager.getInstance().bindTexture("flag");
@@ -183,10 +196,6 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 				localPowerMeter.glDraw();
 			GL11.glPopMatrix();
 			
-			
-			
-
-		
 //			GL11.glTranslatef(GLValues.glWidth/2, 0.5f, 5);
 //			GLBitmapFontBlitter.drawString(String.format("%+.03f", balance), "font", 0.3f, 0.35f, Alignment.CENTERED);
 //			
@@ -219,8 +228,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	public void glKeyUp(int eventKey, char keyChar) {
 		//Reset game
 		if(eventKey == Keyboard.KEY_SPACE){
-			resetTime = System.currentTimeMillis();
-			winner = -1;
+			connection.writePacket(new ReadyPacket(Remotug.settings.getPlayerID()));
 		}
 	}
 	
@@ -231,25 +239,35 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 
 	@Override
 	public void gameValuesChanged(float balance, HashMap<Integer, Float> balances) {
-		// TODO Auto-generated method stub
+		this.balance = balance;
+		localPowerMeter.setForce(balances.get(Remotug.settings.getPlayerID()));
 		
+		for(Entry<Integer, Float> e : balances.entrySet()){
+			if(e.getKey() != Remotug.settings.getPlayerID()){
+				remotePowerMeter.setForce(e.getValue());
+			}
+		}
 	}
 
 	@Override
 	public void readyAnnounced(int playerID) {
-		// TODO Auto-generated method stub
-		
+		if(playerID == Remotug.settings.getPlayerID()){
+			resetTime = System.currentTimeMillis();
+			winner = -1;
+			localPlayerReady = true;
+		} else {
+			otherPlayerReady = true;
+		}
 	}
 
 	@Override
 	public void winnerAnnounced(int winnerID) {
-		// TODO Auto-generated method stub
-		
+		winner = winnerID;
 	}
 	
 	public void startAnnounced(long serverTime) {
-		// TODO: much code
-		
+		localPlayerReady = false;
+		otherPlayerReady = false;
 	}
 	
 	

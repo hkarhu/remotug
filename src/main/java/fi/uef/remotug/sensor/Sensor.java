@@ -22,30 +22,38 @@ public class Sensor {
 	private Thread readerThread; 
 	private String portName = "/dev/ttyUSB0";
 	private int baudRate = 38400;
-	
+
 	public Sensor(String portName, int baudRate) {
 		this.portName = portName;
 		this.baudRate = baudRate;
 	}
 
 	public void start() throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
-		
+
 		continueToRead = true;
-		
-		if(portName == ""){
+
+		if(portName == "emulation"){
 			S.debug("Port name empty, initializing fake data provider");
-			
+
 			readerThread = new Thread(new Runnable() {
-				
+
 				@Override
 				public void run() {
+					int current = 0, target = 4007;
+					float q = 1, out = 0;
 					while (continueToRead){
 						try {
-							//announceSensorChange(kg);
+							current += q*9999;
+							if((q > 0 && current >= target) || (q < 0 && current <= target)){
+								target = (int) (-q*((target*target+1)%(101*4007)));
+								q = -q;
+							}
+							out = ((float)((1+(current/(float)(101*4007)))/2.0f)*0.05f + out*0.95f);
+							announceSensorChange(500*out);
 						} catch(NumberFormatException e2) {
 							e2.printStackTrace();
 						}
-						
+
 						try {
 							Thread.sleep(33);
 						} catch (InterruptedException e) {
@@ -55,14 +63,14 @@ public class Sensor {
 					}
 				}
 			});
-			
+
 			readerThread.start();
-			
+
 			return;
 		}
-		
+
 		CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
-		
+
 		if ( portIdentifier.isCurrentlyOwned()) {
 			System.out.println("Error: Port is currently in use");
 		} else {
@@ -96,14 +104,14 @@ public class Sensor {
 						}
 					}
 				});
-				
+
 				readerThread.start();
 			} else {
 				System.out.println("Error: Only serial ports are handled by this example.");
 			}
 		}     
 	}
-	
+
 	public void stop(){
 		continueToRead = false;
 	}
