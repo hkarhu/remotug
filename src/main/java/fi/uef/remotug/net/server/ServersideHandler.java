@@ -70,8 +70,14 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 	}
 	
 	@Override
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+		System.out.println("[server] client disconnected");
+		this.allClients.remove(ctx.channel());
+	}
+	
+	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		System.out.println("[server] client data");
+		//System.out.println("[server] client data");
 		BasePacket p;
 		
 		try {
@@ -100,7 +106,7 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 			playerReady(this.channelToPlayerMap.get(ctx.channel()));
 			break;
 		case data: 
-			System.out.println("[server] received a data-packet");
+			//System.out.println("[server] received a data-packet");
 			DataPacket dp = (DataPacket)p;
 			channelToPlayerMap.get(ctx.channel()).addLatestKg(dp.getKg());
 			break;
@@ -113,10 +119,6 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		cause.printStackTrace();
-	}
-	
-	private void channelInActive(Channel channel) {
-		this.allClients.remove(channel);
 	}
 	
 	private void playerReady(Player player) {
