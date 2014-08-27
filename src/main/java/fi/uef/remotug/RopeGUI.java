@@ -1,6 +1,7 @@
 package fi.uef.remotug;
 
 import java.nio.FloatBuffer;
+import java.util.HashMap;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
@@ -229,8 +230,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	}
 
 	@Override
-	public void gameValuesChanged(float balance, float localForce,
-			float remoteForce) {
+	public void gameValuesChanged(float balance, HashMap<Integer, Float> balances) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -244,6 +244,11 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	@Override
 	public void winnerAnnounced(int winnerID) {
 		// TODO Auto-generated method stub
+		
+	}
+	
+	public void startAnnounced(long serverTime) {
+		// TODO: much code
 		
 	}
 	

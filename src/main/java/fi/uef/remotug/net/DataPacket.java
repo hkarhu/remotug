@@ -1,8 +1,10 @@
 package fi.uef.remotug.net;
 
+import java.util.HashMap;
+
 public class DataPacket extends BasePacket {
 	private float kg = 0;
-	private float balance = 0;
+	private HashMap<Integer, Float> balances;
 	private float ropepos = 0;
 
 	public DataPacket(float kg) {
@@ -17,12 +19,12 @@ public class DataPacket extends BasePacket {
 		this.kg = kg;
 	}
 	
-	public float getBalance() {
-		return balance;
+	public HashMap<Integer, Float> getBalances() {
+		return this.balances;
 	}
 
-	public void setBalance(float balance) {
-		this.balance = balance;
+	public void setBalances(HashMap<Integer, Float> balances) {
+		this.balances = balances;
 	}
 	
 	public float getRopePos() {

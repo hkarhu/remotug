@@ -13,6 +13,7 @@ public class Settings implements Serializable {
 	public static final String SETTINGS_FILE = "settings.dat";
 	
 	private String playerName;
+	private int playerID;
 	private String serverAddress;
 	private int serverPort;
 	private String sensorPort;
@@ -25,7 +26,14 @@ public class Settings implements Serializable {
 	public void setPlayerName(String playerName) {
 		this.playerName = playerName;
 	}
+	
+	public int getPlayerID() {
+		return this.playerID;
+	}
 
+	public void setPlayerID(int id) {
+		this.playerID = id;
+	}
 	public String getServerAddress() {
 		return serverAddress;
 	}

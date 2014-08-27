@@ -100,8 +100,6 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 			DataPacket dp = (DataPacket)p;
 			channelToPlayerMap.get(ctx.channel()).addLatestKg(dp.getKg());
 			break;
-		//case stop: break;
-
 		default:
 			System.err.println("Received valid base packet but unknown class type! Client newer than server?");
 			break;
@@ -175,10 +173,13 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 	
 	public void calculateAndSendBalances() {
 		DataPacket dp = new DataPacket(-1);
+		HashMap<Integer, Float> balances = new HashMap<Integer, Float>();
 		for(Player p: channelToPlayerMap.values()) {
-			float balance = calculateBalanceForPlayer(p);
+			balances.put(p.getId(), calculateBalanceForPlayer(p));
+		}
+		for(Player p: channelToPlayerMap.values()) {
 			float ropepos = calculateRopePositionForPlayer(p);
-	        dp.setBalance(balance);
+	        dp.setBalances(balances);
 	        dp.setRopePos(ropepos);
 	        playerToChannelMap.get(p).writeAndFlush(dp);
 		}

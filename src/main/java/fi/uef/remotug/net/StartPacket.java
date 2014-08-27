@@ -6,6 +6,11 @@ public class StartPacket extends BasePacket{
 	public StartPacket(long stime) {
 		this.startTime = stime;
 	}
+	
+	public long getStartTime() {
+		return this.startTime;
+	}
+	
 	@Override
 	public PacketType getType() {
 		return PacketType.start;

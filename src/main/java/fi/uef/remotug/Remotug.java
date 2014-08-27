@@ -14,13 +14,14 @@ import gnu.io.UnsupportedCommOperationException;
 
 
 public class Remotug {
+	public static Settings settings = Settings.loadSettings();
 	
 	public static void main(String[] args) {
 		
 		Sensor sensor;
 		Connection connection;
 		RopeGUI gui = new RopeGUI();
-		Settings settings = Settings.loadSettings();
+		
 		
 		if(settings == null) settings = new Settings();
 		
