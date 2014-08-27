@@ -9,6 +9,7 @@ import javax.print.attribute.standard.MediaSize.Other;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import fi.conf.ae.gl.GLGraphicRoutines;
 import fi.conf.ae.gl.GLValues;
@@ -30,7 +31,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
     
     private int matchDuration = 30;
 	private long startTime = 0;
-	private long resetTime = 0;
+	private long endTime = 0;
 	private volatile float balance = 0;
 	private volatile float sensor = 0;
 	private float lt = 0;
@@ -208,22 +209,35 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 				localPowerMeter.glDraw();
 			GL11.glPopMatrix();
 			
+			GL11.glColor4f(1, 1, 1, 1);
+			
 			GL11.glPushMatrix();
-				if(!gameOn && winner >= 0){
-					GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.48f, 0);
-					if(winner == Remotug.settings.getPlayerID()){
-						GLBitmapFontBlitter.drawString("You win!", "font", 0.3f, 0.35f, Alignment.CENTERED);
-					} else {
-						GLBitmapFontBlitter.drawString("You lose!", "font", 0.3f, 0.35f, Alignment.CENTERED);
+				GL11.glTranslatef(GLValues.glWidth*0.25f, GLValues.glHeight*0.25f, 0);
+				if(gameOn && System.currentTimeMillis() < endTime) {
+					GLBitmapFontBlitter.drawString("Time left: " + (int)((endTime-System.currentTimeMillis())/1000.0f), "font", 0.3f, 0.35f, Alignment.CENTERED);
+				}
+			GL11.glPopMatrix();
+			
+			GL11.glPushMatrix();
+				if(!gameOn){
+					GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.48f, -10);
+					if(winner >= 0){
+						if(winner == Remotug.settings.getPlayerID()){
+							GLBitmapFontBlitter.drawString("You win!", "font", 0.4f, 0.7f, Alignment.CENTERED);
+						} else {
+							GLBitmapFontBlitter.drawString("You lose!", "font", 0.3f, 0.45f, Alignment.CENTERED);
+						}
+					} else if(localPlayerReady && remotePlayerReady){
+						GLBitmapFontBlitter.drawString("Get ready! ", "font", 0.3f, 0.45f, Alignment.CENTERED);
 					}
 				}
 			GL11.glPopMatrix();
 			
 			if(connection.isConnected()){
-				if(!gameOn){
+				if(!gameOn && !localPlayerReady){
 					GL11.glColor4f(1, 1, 1, 1);
-					GL11.glTranslatef(GLValues.glWidth - ((lt%10000)*0.0001f)*GLValues.glWidth*3.5f, GLValues.glHeight*0.48f, -5);
-					GLBitmapFontBlitter.drawScrollerString("Game Over                 Press space to begin a new match!", 0.3f, 1f, -4, 0.25f, lt*0.005f - 0.75f, "font");
+					GL11.glTranslatef(GLValues.glWidth - ((lt%10000)*0.0001f)*GLValues.glWidth*3.5f, GLValues.glHeight*0.08f, -5);
+					GLBitmapFontBlitter.drawScrollerString("Game Over                 Press space to begin a new match!", 0.3f, 0.5f, -4, 0.25f, lt*0.005f - 0.75f, "font");
 				}
 			} else {
 				GL11.glColor4f(1, 1, 1, 1);
@@ -265,7 +279,12 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	@Override
 	public void gameValuesChanged(float balance, HashMap<Integer, Float> balances) {
 		if(balances == null || balances.isEmpty()) return;
-		this.balance = balance;
+		
+		if(gameOn || winner >= 0){
+			this.balance = balance;
+		} else {
+			this.balance = 0;
+		}
 		
 		if(balances.containsKey(Remotug.settings.getPlayerID())){
 			localPowerMeter.setForce(balances.get(Remotug.settings.getPlayerID())/SCALER);
@@ -285,8 +304,8 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	@Override
 	public void readyAnnounced(int playerID) {
 		if(playerID == Remotug.settings.getPlayerID()){
-			resetTime = System.currentTimeMillis();
 			winner = -1;
+			balance = 0;
 			localPlayerReady = true;
 		} else {
 			remotePlayerReady = true;
@@ -295,6 +314,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 
 	@Override
 	public void winnerAnnounced(int winnerID) {
+		System.out.println("Winner?");
 		winner = winnerID;
 		gameOn = false;
 	}
@@ -304,6 +324,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		localPlayerReady = false;
 		remotePlayerReady = false;
 		gameOn = true;
+		endTime = System.currentTimeMillis() + duration;
 	}
 	
 
