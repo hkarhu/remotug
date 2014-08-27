@@ -89,7 +89,7 @@ public class ClientsideHandler extends ChannelHandlerAdapter {
 	
 	private void winnerAnnounced(int playerID) {
 		for(ConnectionListener l: this.serverListeners) {
-			l.readyAnnounced(playerID);
+			l.winnerAnnounced(playerID);
 		}
 	}
 	

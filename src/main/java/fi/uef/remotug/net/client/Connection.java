@@ -53,7 +53,7 @@ public class Connection implements SensorListener {
 		ChannelFuture f;
 		f = b.connect(address, port);
 		
-		f.awaitUninterruptibly(5000);
+		f.awaitUninterruptibly(10000);
 
 		if (!f.isSuccess()) {
 			JOptionPane.showMessageDialog(null, f.cause().getMessage(), "Connection error", JOptionPane.ERROR_MESSAGE);
