@@ -97,7 +97,7 @@ public class RemotugServer {
 						  }
 					  }
 				  }
-				}, 1000, 150);
+				}, 1000, 100);
 			
 		} catch (InterruptedException e) {
 			ex = new RuntimeException(e);
@@ -171,7 +171,10 @@ public class RemotugServer {
 		float bestRopePos = -1;
 		Player winner = null;
 		for(Player p: this.channelToPlayerMap.values()) {
-			if(p.getRopePos() > bestRopePos) winner = p;
+			if(p.getRopePos() > bestRopePos) {
+				bestRopePos = p.getRopePos();
+				winner = p;
+			}
 		}
 		System.out.println("[server] match winner > " + winner.getName() + ", " + winner.getId());
 		
@@ -179,7 +182,6 @@ public class RemotugServer {
 	}
 	
 	public void calculateAndSendBalances() {
-		DataPacket dp = new DataPacket(-1);
 		HashMap<Integer, Float> balances = new HashMap<Integer, Float>();
 		for(Player p: channelToPlayerMap.values()) {
 			if(p.getId() > 0) {
@@ -188,8 +190,10 @@ public class RemotugServer {
 				//balances.put(p.getId(), calculateBalanceForPlayer(p));7
 			}
 		}
+		
 		for(Player p: channelToPlayerMap.values()) {
 			float ropepos = calculateRopePositionForPlayer(p);
+			DataPacket dp = new DataPacket(-1);
 	        dp.setBalances(balances);
 	        dp.setRopePos(ropepos);
 	        playerToChannelMap.get(p).writeAndFlush(dp);

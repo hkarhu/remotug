@@ -57,6 +57,27 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
+        	<plugin>
+    			<artifactId>maven-assembly-plugin</artifactId>
+    				<executions>
+		      			<execution>
+		        			<phase>package</phase>
+		        			<goals>
+		          				<goal>single</goal>
+		        			</goals>
+		      			</execution>
+		    		</executions>
+		    	<configuration>
+		      		<descriptorRefs>
+		        		<descriptorRef>jar-with-dependencies</descriptorRef>
+		      		</descriptorRefs>
+		      		<archive>
+	        			<manifest>
+	          				<mainClass>fi.uef.remotug.net.server.RemotugServer</mainClass>
+	        			</manifest>
+      				</archive>
+		    	</configuration>
+		  	</plugin>
 			<plugin>
 				<!-- Build an executable JAR -->
 				<groupId>org.apache.maven.plugins</groupId>
@@ -65,7 +86,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>fi.uef.remotug.Remotug</mainClass>
+							<mainClass>fi.uef.remotug.net.server.RemotugServer</mainClass>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
 						</manifest>
