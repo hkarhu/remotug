@@ -319,7 +319,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	public void glKeyUp(int eventKey, char keyChar) {
 		//Reset game
 		if(eventKey == Keyboard.KEY_SPACE){
-			connection.writePacket(new ReadyPacket(Remotug.settings.getPlayerID()));
+			connection.writePacket(new ReadyPacket(Remotug.settings.getPlayerID(), Remotug.settings.getPlayerName()));
 		}
 	}
 	
