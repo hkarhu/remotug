@@ -354,13 +354,14 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	}
 
 	@Override
-	public void readyAnnounced(int playerID, String remotePlayerName) {
+	public void readyAnnounced(int playerID, String remoteName) {
 		if(playerID == Remotug.settings.getPlayerID()){
 			winner = -1;
 			balance = 0;
 			localPlayerReady = true;
 		} else {
 			remotePlayerReady = true;
+			remotePlayerName = remoteName;
 		}
 	}
 

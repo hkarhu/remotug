@@ -47,7 +47,7 @@ public class ClientsideHandler extends ChannelHandlerAdapter {
 		case ready:
 			ReadyPacket rp = (ReadyPacket)p;
 			System.out.println("[client] user with id '" + rp.getUserId() + "' is ready to play!");
-			readyAnnounced(rp.getUserId());
+			readyAnnounced(rp.getUserId(), rp.getUserName());
 			break;
 		case start: 
 			StartPacket sp = (StartPacket)p;
@@ -75,9 +75,9 @@ public class ClientsideHandler extends ChannelHandlerAdapter {
 		}
 	}
 	
-	private void readyAnnounced(int playerID) {
+	private void readyAnnounced(int playerID, String name) {
 		for(ConnectionListener l: this.serverListeners) {
-			l.readyAnnounced(playerID);
+			l.readyAnnounced(playerID, name);
 		}
 	}
 	
