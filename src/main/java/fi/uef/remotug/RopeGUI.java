@@ -95,6 +95,8 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/meter_face.png"), "meter_face");
 		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/rope_pos.png"), "rope_pos");
 		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/flag.png"), "flag");
+		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/win.png"), "win");
+		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/lose.png"), "lose");
 		
 		//Create new model manager instance
 		new ModelManager().initialize();
@@ -142,7 +144,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
         
 		GLValues.cameraPositionX = (float) (4*Math.sin(0.25f*balance));
 		GLValues.cameraPositionY = (float) (4*Math.cos(0.25f*balance));
-		GLValues.cameraPositionZ = -5.5f;
+		GLValues.cameraPositionZ = -5.0f;
 		GLValues.cameraTargetX = 0;
 		GLValues.cameraTargetY = 1;
 		GLValues.cameraTargetZ = 0;
@@ -219,13 +221,28 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			GL11.glPopMatrix();
 			
 			GL11.glPushMatrix();
+			
+			
+			GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.48f, -10);
+			
+			
+
+			
 				if(!gameOn){
 					GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.48f, -10);
 					if(winner >= 0){
 						if(winner == Remotug.settings.getPlayerID()){
+							GLTextureManager.getInstance().bindTexture("win");
+							GL11.glRotatef(20*(float)Math.sin(lt*0.003f), 0, 0, 1);
+							GLGraphicRoutines.draw2DRect(-1.5f, -0.75f, 1.5f, 0.75f, 0);
 							GLBitmapFontBlitter.drawString("You win!", "font", 0.4f, 0.7f, Alignment.CENTERED);
 						} else {
-							GLBitmapFontBlitter.drawString("You lose!", "font", 0.3f, 0.45f, Alignment.CENTERED);
+							GLTextureManager.getInstance().bindTexture("lose");
+							GL11.glTranslatef(0.3f*(float)Math.sin(lt*0.003f), 0, 0);
+							GL11.glRotatef(10*(float)Math.sin(lt*0.003f), 0, 0, 1);
+							GLGraphicRoutines.draw2DRect(-1.5f, -0.75f, 1.5f, 0.75f, 0);
+							GL11.glTranslatef(0, 0.15f, 0);
+							GLBitmapFontBlitter.drawString("You lost...", "font", 0.2f, 0.4f, Alignment.CENTERED);
 						}
 					} else if(localPlayerReady && remotePlayerReady){
 						GLBitmapFontBlitter.drawString("Get ready! ", "font", 0.3f, 0.45f, Alignment.CENTERED);
@@ -280,11 +297,15 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	public void gameValuesChanged(float balance, HashMap<Integer, Float> balances) {
 		if(balances == null || balances.isEmpty()) return;
 		
-		if(gameOn || winner >= 0){
-			this.balance = balance;
-		} else {
-			this.balance = 0;
-		}
+		this.balance = balance;
+		
+//		if(gameOn || winner >= 0){
+//			this.balance = balance;
+//		} else {
+//			this.balance = 0;
+//		}
+		
+		System.out.println("Balance: " + balance);
 		
 		if(balances.containsKey(Remotug.settings.getPlayerID())){
 			localPowerMeter.setForce(balances.get(Remotug.settings.getPlayerID())/SCALER);
@@ -297,7 +318,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			if(e.getKey() != Remotug.settings.getPlayerID()){
 				remotePowerMeter.setForce(e.getValue()/SCALER);
 			}
-			System.out.println(e.getKey() + " " + e.getValue());
+			System.out.println("Hasmap has: " + e.getKey() + " " + e.getValue());
 		}
 	}
 
