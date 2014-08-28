@@ -125,7 +125,7 @@ public class RemotugServer {
 				if(p.isReadyForMatch()) readyPlayers++;
 			}
 			
-			this.allClients.writeAndFlush(new ReadyPacket(player.getId()));
+			this.allClients.writeAndFlush(new ReadyPacket(player.getId(), player.getName()));
 			
 			// && readyPlayers == this.channelToPlayerMap.size()
 			if(readyPlayers == 2) {
