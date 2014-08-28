@@ -20,6 +20,7 @@ import fi.conf.ae.gl.core.GLKeyboardListener;
 import fi.conf.ae.gl.text.GLBitmapFontBlitter;
 import fi.conf.ae.gl.text.GLBitmapFontBlitter.Alignment;
 import fi.conf.ae.gl.texture.GLTextureManager;
+import fi.conf.ae.gl.texture.GLTextureRoutines;
 import fi.conf.ae.routines.S;
 import fi.uef.remotug.gl.ModelManager;
 import fi.uef.remotug.net.ReadyPacket;
@@ -41,6 +42,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	private boolean localPlayerReady = false;
 	private boolean remotePlayerReady = false;
 	private boolean gameOn = false;
+	private String remotePlayerName = "";
 	
 	private LocalPowerMeter localPowerMeter = new LocalPowerMeter();
 	private PowerMeter remotePowerMeter = new PowerMeter();
@@ -163,7 +165,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		GL11.glEnable( GL11.GL_BLEND );
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		
-		GL11.glColor4f(0.7f, 0.7f, 0.7f, 1);
+		GL11.glColor4f(0.6f, 0.6f, 0.6f, 1);
 		GL11.glPushMatrix();
 			GL11.glTranslatef(-0.1f, -0.1f, 0);
 			GLTextureManager.getInstance().bindTexture("map");
@@ -208,6 +210,17 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 				GLTextureManager.unbindTexture();
 				GL11.glColor4f(1, 1, 1, 1);
 				GLGraphicRoutines.drawLine(0,-0.7f, 0, 1, -6, -6, 1.0f);
+				
+				GL11.glPushMatrix();
+					GL11.glTranslatef(-GLValues.glWidth*0.3f, -0.3f,0);
+					GLBitmapFontBlitter.drawString(Remotug.settings.getPlayerName(), "font", 0.2f, 0.25f, Alignment.CENTERED);
+				GL11.glPopMatrix();
+				
+				GL11.glPushMatrix();
+					GL11.glTranslatef(GLValues.glWidth*0.33f, 0.3f,0);
+					GLBitmapFontBlitter.drawString(remotePlayerName, "font", 0.2f, 0.25f, Alignment.CENTERED);
+				GL11.glPopMatrix();
+				
 			GL11.glPopMatrix();
 			
 			GL11.glPushMatrix();
@@ -221,19 +234,25 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			GL11.glColor4f(1, 1, 1, 1);
 			
 			GL11.glPushMatrix();
-				GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.93f, -10);
+				GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.93f, GLValues.glDepth*0.5f);
 				if(gameOn && System.currentTimeMillis() < endTime) {
-					if(System.currentTimeMillis() > endTime-5000){
+					if(System.currentTimeMillis() > endTime-6000){
 						GL11.glColor4f(1, 0, 0, 0.5f+(float)Math.sin(lt*0.05f));	
 					}
-					GLBitmapFontBlitter.drawString("" + (int)((endTime-System.currentTimeMillis())/1000.0f), "font", 0.3f, 0.4f, Alignment.CENTERED);
+					GLBitmapFontBlitter.drawString("" + (int)((endTime-System.currentTimeMillis())/1000.0f)+1, "font", 0.3f, 0.4f, Alignment.CENTERED);
 				}
 			GL11.glPopMatrix();
 			
 			GL11.glPushMatrix();
 			
 				if(!gameOn){
-					GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.48f, -10);
+					
+					if(!localPlayerReady && !remotePlayerReady){
+						GLTextureManager.unbindTexture();
+						GL11.glColor4f(0, 0, 0, 0.6f);
+						GLGraphicRoutines.draw2DRect(0, 0, GLValues.glWidth, GLValues.glHeight, GLValues.glDepth*0.9f);
+						GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.48f, -1);
+					}
 					
 					if(winner >= 0){
 						if(winner == Remotug.settings.getPlayerID()){
@@ -259,7 +278,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			if(connection.isConnected()){
 				if(!gameOn && !localPlayerReady){
 					GL11.glColor4f(1, 1, 1, 1);
-					GL11.glTranslatef(GLValues.glWidth - ((lt%10000)*0.0001f)*GLValues.glWidth*3.75f, GLValues.glHeight*0.08f, -5);
+					GL11.glTranslatef(GLValues.glWidth - ((lt%10000)*0.0001f)*GLValues.glWidth*3.75f, GLValues.glHeight*0.08f, GLValues.glDepth);
 					GLBitmapFontBlitter.drawScrollerString("Game Over                 Press space to begin a new match!", 0.3f, 0.5f, -3, 0.25f, lt*0.005f - 0.75f, "font");
 				}
 			} else {
@@ -335,7 +354,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	}
 
 	@Override
-	public void readyAnnounced(int playerID) {
+	public void readyAnnounced(int playerID, String remotePlayerName) {
 		if(playerID == Remotug.settings.getPlayerID()){
 			winner = -1;
 			balance = 0;

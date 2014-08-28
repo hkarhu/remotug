@@ -2,6 +2,7 @@ package fi.uef.remotug;
 
 import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 import fi.conf.ae.routines.S;
@@ -58,7 +59,7 @@ public class Remotug {
 		//ServerConnection gives out information about the game status to the gui
 		connection.addListener(gui);
 		
-		gui.startGL();
+		gui.startGL("RemoTug", null);
 		
 		shutdown();
 		

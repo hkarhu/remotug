@@ -56,6 +56,7 @@ public class SetupDialog extends JDialog {
     }
     
     public SetupDialog(final Settings settings) {
+    	this.setTitle("RemoTug settings");
     	this.settings = settings;
     	this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     	this.setModal(true);
