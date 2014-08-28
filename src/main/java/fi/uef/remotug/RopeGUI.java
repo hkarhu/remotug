@@ -236,10 +236,10 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			GL11.glPushMatrix();
 				GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.93f, GLValues.glDepth*0.5f);
 				if(gameOn && System.currentTimeMillis() < endTime) {
-					if(System.currentTimeMillis() > endTime-6000){
+					if(System.currentTimeMillis() > endTime-5000){
 						GL11.glColor4f(1, 0, 0, 0.5f+(float)Math.sin(lt*0.05f));	
 					}
-					GLBitmapFontBlitter.drawString("" + (int)((endTime-System.currentTimeMillis())/1000.0f)+1, "font", 0.3f, 0.4f, Alignment.CENTERED);
+					GLBitmapFontBlitter.drawString("" + (int)((endTime-System.currentTimeMillis())/1000.0f + 1), "font", 0.3f, 0.4f, Alignment.CENTERED);
 				}
 			GL11.glPopMatrix();
 			
@@ -247,12 +247,16 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			
 				if(!gameOn){
 					
+					GL11.glTranslatef(0, 0, GLValues.glDepth);
+					
 					if(!localPlayerReady && !remotePlayerReady){
 						GLTextureManager.unbindTexture();
 						GL11.glColor4f(0, 0, 0, 0.6f);
-						GLGraphicRoutines.draw2DRect(0, 0, GLValues.glWidth, GLValues.glHeight, GLValues.glDepth*0.9f);
-						GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.48f, -1);
+						GLGraphicRoutines.draw2DRect(0, 0, GLValues.glWidth, GLValues.glHeight, 0);
 					}
+					
+					GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.48f, 0);
+					GL11.glColor4f(1, 1, 1, 1);
 					
 					if(winner >= 0){
 						if(winner == Remotug.settings.getPlayerID()){
@@ -270,8 +274,13 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 							GLBitmapFontBlitter.drawString("You lost", "font", 0.2f, 0.4f, Alignment.CENTERED);
 						}
 					} else if(localPlayerReady && remotePlayerReady){
+						GLTextureManager.unbindTexture();
+						GL11.glColor4f(0, 0, 0, 0.6f);
+						GLGraphicRoutines.draw2DRect(-GLValues.glWidth*0.5f, -0.3f, GLValues.glWidth*0.5f, 0.3f, 0);
+						GL11.glColor4f(1, 1, 1, 1);
 						GLBitmapFontBlitter.drawString("Get ready! ", "font", 0.3f, 0.45f, Alignment.CENTERED);
 					}
+					
 				}
 			GL11.glPopMatrix();
 			

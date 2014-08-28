@@ -2,9 +2,9 @@
 
 A game of 'tug-of-war' that can be played over great distances.
 
-This version based on the previous remote-tug-of-war by <???>. 
+Idea based on the previous version of [remote-tug-of-war game](https://code.google.com/p/tugofwar/) made for SciFest 2008.
 
-Developed for Tiedeseura. Premiere at Joen Yö 2014.
+Developed for Tiedeseura in co-operation with UEF. Premiere at Joen Yö 2014.
 
 ---
 
