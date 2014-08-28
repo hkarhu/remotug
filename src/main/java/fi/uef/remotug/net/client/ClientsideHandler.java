@@ -23,7 +23,7 @@ public class ClientsideHandler extends ChannelHandlerAdapter {
 	
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		System.out.println("[client] server data");
+		//System.out.println("[client] server data");
 		BasePacket p;
 		
 		try {
@@ -51,7 +51,7 @@ public class ClientsideHandler extends ChannelHandlerAdapter {
 			break;
 		case start: 
 			StartPacket sp = (StartPacket)p;
-			System.out.println("[client] match starting in 5 secs");
+			System.out.println("[client] match started");
 			startAnnounced(sp.getStartTime(), sp.getMatchDuration(), sp.getMatchStartDelay());
 			break;
 		case data: 

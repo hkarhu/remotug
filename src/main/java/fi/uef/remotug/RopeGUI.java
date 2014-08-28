@@ -8,6 +8,7 @@ import javax.print.attribute.standard.MediaSize.Other;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
@@ -19,6 +20,7 @@ import fi.conf.ae.gl.core.GLKeyboardListener;
 import fi.conf.ae.gl.text.GLBitmapFontBlitter;
 import fi.conf.ae.gl.text.GLBitmapFontBlitter.Alignment;
 import fi.conf.ae.gl.texture.GLTextureManager;
+import fi.conf.ae.routines.S;
 import fi.uef.remotug.gl.ModelManager;
 import fi.uef.remotug.net.ReadyPacket;
 import fi.uef.remotug.net.client.Connection;
@@ -107,6 +109,9 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		
 		startTime = System.currentTimeMillis();
 
+		Display.setVSyncEnabled(true);
+		Display.sync(50);
+		
 		return true;
 
 	}
@@ -116,6 +121,9 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 
 	@Override
 	public void glLoop() {
+		
+		GL11.glClearColor( 0.15f, 0.15f, 0.15f, 1.0f);
+		
 		GL11.glClear(
 				GL11.GL_COLOR_BUFFER_BIT |
 				GL11.GL_DEPTH_BUFFER_BIT |
@@ -142,21 +150,22 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
         
         GL11.glEnable(GL11.GL_LIGHT0);
         
-		GLValues.cameraPositionX = (float) (4*Math.sin(0.25f*balance));
-		GLValues.cameraPositionY = (float) (4*Math.cos(0.25f*balance));
-		GLValues.cameraPositionZ = -5.0f;
+		GLValues.cameraPositionX = (float)Math.sin(lt*0.0002f)*0.1f + 1;
+		GLValues.cameraPositionY = (float)Math.cos(Math.cos(lt*0.0002f))*0.2f + 1f;
+		GLValues.cameraPositionZ = -7f + (float)Math.sin(lt*0.0001f)*0.5f;
 		GLValues.cameraTargetX = 0;
-		GLValues.cameraTargetY = 1;
+		GLValues.cameraTargetY = 0;
 		GLValues.cameraTargetZ = 0;
-		GLValues.cameraRotationX = 0;
+		GLValues.cameraRotationX = 0.1f;
 		GLValues.cameraRotationY = 0;
 		GLValues.cameraRotationZ = -1;
 		
 		GL11.glEnable( GL11.GL_BLEND );
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		
-		GL11.glColor4f(0.5f, 0.5f, 0.5f, 1);
+		GL11.glColor4f(0.7f, 0.7f, 0.7f, 1);
 		GL11.glPushMatrix();
+			GL11.glTranslatef(-0.1f, -0.1f, 0);
 			GLTextureManager.getInstance().bindTexture("map");
 			ModelManager.getInstance().getModel("map").glDraw();
 			GLTextureManager.getInstance().bindTexture("rope");
@@ -176,8 +185,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 				GL11.glTranslatef(GLValues.glWidth*0.82f, GLValues.glHeight*0.22f, 1);
 				GL11.glScalef(1, 1, 1);
 				if(remotePlayerReady){
-					GL11.glColor4f(0.3f, 1, 0.3f, 1);
-					GLBitmapFontBlitter.drawCircleString("Ready!   Ready!   Ready!   Ready!   ", 0.8f, 1, 1.25f + 0.3f*(float)(0.5f+0.5f*Math.sin(lt*0.002f)), lt*0.001f, "font");
+					drawReady();
 				}
 				remotePowerMeter.glDraw();
 			GL11.glPopMatrix();
@@ -198,15 +206,14 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 				GL11.glPopMatrix();
 
 				GLTextureManager.unbindTexture();
-				GL11.glColor4f(1, 0, 0, 1);
+				GL11.glColor4f(1, 1, 1, 1);
 				GLGraphicRoutines.drawLine(0,-0.7f, 0, 1, -6, -6, 1.0f);
 			GL11.glPopMatrix();
 			
 			GL11.glPushMatrix();
 				GL11.glTranslatef(GLValues.glWidth*0.19f, GLValues.glHeight*0.75f, -1);
 				if(localPlayerReady){
-					GL11.glColor4f(0.3f, 1, 0.3f, 1);
-					GLBitmapFontBlitter.drawCircleString("Ready!   Ready!   Ready!   Ready!   ", 0.8f, 1, 1.25f + 0.3f*(float)(0.5f+0.5f*Math.sin(lt*0.002f)), lt*0.001f, "font");
+					drawReady();
 				}
 				localPowerMeter.glDraw();
 			GL11.glPopMatrix();
@@ -214,22 +221,20 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			GL11.glColor4f(1, 1, 1, 1);
 			
 			GL11.glPushMatrix();
-				GL11.glTranslatef(GLValues.glWidth*0.25f, GLValues.glHeight*0.25f, 0);
+				GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.93f, -10);
 				if(gameOn && System.currentTimeMillis() < endTime) {
-					GLBitmapFontBlitter.drawString("Time left: " + (int)((endTime-System.currentTimeMillis())/1000.0f), "font", 0.3f, 0.35f, Alignment.CENTERED);
+					if(System.currentTimeMillis() > endTime-5000){
+						GL11.glColor4f(1, 0, 0, 0.5f+(float)Math.sin(lt*0.05f));	
+					}
+					GLBitmapFontBlitter.drawString("" + (int)((endTime-System.currentTimeMillis())/1000.0f), "font", 0.3f, 0.4f, Alignment.CENTERED);
 				}
 			GL11.glPopMatrix();
 			
 			GL11.glPushMatrix();
 			
-			
-			GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.48f, -10);
-			
-			
-
-			
 				if(!gameOn){
 					GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.48f, -10);
+					
 					if(winner >= 0){
 						if(winner == Remotug.settings.getPlayerID()){
 							GLTextureManager.getInstance().bindTexture("win");
@@ -237,12 +242,13 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 							GLGraphicRoutines.draw2DRect(-1.5f, -0.75f, 1.5f, 0.75f, 0);
 							GLBitmapFontBlitter.drawString("You win!", "font", 0.4f, 0.7f, Alignment.CENTERED);
 						} else {
+							GL11.glTranslatef(0, -0.2f, 0);
 							GLTextureManager.getInstance().bindTexture("lose");
 							GL11.glTranslatef(0.3f*(float)Math.sin(lt*0.003f), 0, 0);
 							GL11.glRotatef(10*(float)Math.sin(lt*0.003f), 0, 0, 1);
 							GLGraphicRoutines.draw2DRect(-1.5f, -0.75f, 1.5f, 0.75f, 0);
 							GL11.glTranslatef(0, 0.15f, 0);
-							GLBitmapFontBlitter.drawString("You lost...", "font", 0.2f, 0.4f, Alignment.CENTERED);
+							GLBitmapFontBlitter.drawString("You lost", "font", 0.2f, 0.4f, Alignment.CENTERED);
 						}
 					} else if(localPlayerReady && remotePlayerReady){
 						GLBitmapFontBlitter.drawString("Get ready! ", "font", 0.3f, 0.45f, Alignment.CENTERED);
@@ -253,8 +259,8 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			if(connection.isConnected()){
 				if(!gameOn && !localPlayerReady){
 					GL11.glColor4f(1, 1, 1, 1);
-					GL11.glTranslatef(GLValues.glWidth - ((lt%10000)*0.0001f)*GLValues.glWidth*3.5f, GLValues.glHeight*0.08f, -5);
-					GLBitmapFontBlitter.drawScrollerString("Game Over                 Press space to begin a new match!", 0.3f, 0.5f, -4, 0.25f, lt*0.005f - 0.75f, "font");
+					GL11.glTranslatef(GLValues.glWidth - ((lt%10000)*0.0001f)*GLValues.glWidth*3.75f, GLValues.glHeight*0.08f, -5);
+					GLBitmapFontBlitter.drawScrollerString("Game Over                 Press space to begin a new match!", 0.3f, 0.5f, -3, 0.25f, lt*0.005f - 0.75f, "font");
 				}
 			} else {
 				GL11.glColor4f(1, 1, 1, 1);
@@ -263,8 +269,18 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			}		
 		
 		GL11.glPopMatrix();
+		
 	}
 
+	private void drawReady(){
+		GL11.glColor4f(0, 0.6f, 0, 0.4f);
+		GLTextureManager.unbindTexture();
+		GLGraphicRoutines.drawCircle(1.25f + 0.3f*(float)(0.5f+0.5f*Math.sin(lt*0.002f)), 30);
+		GL11.glColor4f(0, 1, 0, 1);
+		GLGraphicRoutines.drawLineCircle(1.25f + 0.3f*(float)(0.5f+0.5f*Math.sin(lt*0.002f)), 30, 1.0f);
+		GLBitmapFontBlitter.drawCircleString("Ready!   Ready!   Ready!   Ready!   ", 0.8f, 1, 1.25f + 0.3f*(float)(0.5f+0.5f*Math.sin(lt*0.002f)), lt*0.001f, "font");
+	}
+	
 	@Override
 	public void glFocusChanged(boolean isFocused) {
 		// TODO Auto-generated method stub
@@ -297,15 +313,11 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 	public void gameValuesChanged(float balance, HashMap<Integer, Float> balances) {
 		if(balances == null || balances.isEmpty()) return;
 		
-		this.balance = balance;
+		if(gameOn){
+			this.balance = balance;
+		}
 		
-//		if(gameOn || winner >= 0){
-//			this.balance = balance;
-//		} else {
-//			this.balance = 0;
-//		}
-		
-		System.out.println("Balance: " + balance);
+		//System.out.println("Balance: " + balance);
 		
 		if(balances.containsKey(Remotug.settings.getPlayerID())){
 			localPowerMeter.setForce(balances.get(Remotug.settings.getPlayerID())/SCALER);
@@ -318,7 +330,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			if(e.getKey() != Remotug.settings.getPlayerID()){
 				remotePowerMeter.setForce(e.getValue()/SCALER);
 			}
-			System.out.println("Hasmap has: " + e.getKey() + " " + e.getValue());
+			//System.out.println("Hasmap has: " + e.getKey() + " " + e.getValue());
 		}
 	}
 

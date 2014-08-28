@@ -49,7 +49,7 @@ public class Sensor {
 								q = -q;
 							}
 							out = ((float)((1+(current/(float)(101*4007)))/2.0f)*0.05f + out*0.95f);
-							announceSensorChange(500*out);
+							announceSensorChange(2280*out);
 						} catch(NumberFormatException e2) {
 							e2.printStackTrace();
 						}
