@@ -20,7 +20,7 @@
 			<artifactId>ae</artifactId>
 			<version>0.8</version>
 		</dependency>
-			<dependency>
+		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
 			<version>5.0.0.Alpha1</version>
@@ -57,53 +57,45 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
-        	<plugin>
-    			<artifactId>maven-assembly-plugin</artifactId>
-    				<executions>
-		      			<execution>
-		        			<phase>package</phase>
-		        			<goals>
-		          				<goal>single</goal>
-		        			</goals>
-		      			</execution>
-		    		</executions>
-		    	<configuration>
-		      		<descriptorRefs>
-		        		<descriptorRef>jar-with-dependencies</descriptorRef>
-		      		</descriptorRefs>
-		      		<archive>
-	        			<manifest>
-	          				<mainClass>fi.uef.remotug.net.server.RemotugServer</mainClass>
-	        			</manifest>
-      				</archive>
-		    	</configuration>
-		  	</plugin>
 			<plugin>
-				<!-- Build an executable JAR -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.5</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>fi.uef.remotug.net.server.RemotugServer</mainClass>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>com.googlecode.mavennatives</groupId>
-				<artifactId>maven-nativedependencies-plugin</artifactId>
-				<version>0.0.7</version>
+				<artifactId>maven-assembly-plugin</artifactId>
+				
 				<executions>
 					<execution>
-						<id>unpacknatives</id>
-						<phase>generate-resources</phase>
+						<id>remotug-client</id>
+						<phase>package</phase>
 						<goals>
-							<goal>copy</goal>
+							<goal>single</goal>
 						</goals>
+						<configuration>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifest>
+									<mainClass>fi.uef.remotug.Remotug</mainClass>
+								</manifest>
+							</archive>
+							<finalName>remotug</finalName>
+						</configuration>
+					</execution>
+					<execution>
+						<id>remotug-server</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifest>
+									<mainClass>fi.uef.remotug.net.server.RemotugServer</mainClass>
+								</manifest>
+							</archive>
+							<finalName>remotug_server</finalName>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

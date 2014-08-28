@@ -19,6 +19,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import fi.conf.ae.routines.S;
+import fi.uef.remotug.Remotug;
 import fi.uef.remotug.net.BasePacket;
 import fi.uef.remotug.net.DataPacket;
 import fi.uef.remotug.sensor.SensorListener;
@@ -74,7 +75,7 @@ public class Connection implements SensorListener {
 	public void addListener(ConnectionListener listener) {
 		this.serverListeners.add(listener);
 	}
-
+	
 	public void writePacket(BasePacket packet){
 		if(myChannel != null) myChannel.writeAndFlush(packet);
 	}

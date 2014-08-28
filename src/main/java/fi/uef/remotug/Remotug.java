@@ -59,6 +59,7 @@ public class Remotug {
 		//ServerConnection gives out information about the game status to the gui
 		connection.addListener(gui);
 		
+		//TODO: add fancy icon
 		gui.startGL("RemoTug", null);
 		
 		shutdown();

@@ -96,6 +96,8 @@ public class SetupDialog extends JDialog {
         String[] ports = listSerialPorts();
         
         comboSensorPort.setModel(new DefaultComboBoxModel(ports));
+        comboSensorPort.setEditable(true);
+        comboSensorPort.setSelectedItem(settings.getSensorPort());
         comboSensorPort.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 //TODO
@@ -111,7 +113,9 @@ public class SetupDialog extends JDialog {
         jLabel7.setFont(new java.awt.Font("DejaVu Serif", 1, 12));
         jLabel7.setText("Sensor");
 
+        comboSensorSpeed.setSelectedItem(settings.getSensorSpeed());
         comboSensorSpeed.setModel(new DefaultComboBoxModel(new Integer[] { 38400, 9600 }));
+        comboSensorSpeed.setEditable(true);
         comboSensorSpeed.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 //TODO

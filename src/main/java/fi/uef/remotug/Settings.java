@@ -101,5 +101,10 @@ public class Settings implements Serializable {
 
 	public void print() {
 		System.out.println("Sensor speed " + sensorSpeed);
+	}
+
+	public static volatile boolean ebinStart = false;
+	public void ebinStart() {
+		if(playerName.startsWith("ebin")) ebinStart = true;
 	}	
 }

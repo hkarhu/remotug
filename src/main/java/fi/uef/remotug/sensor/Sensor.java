@@ -1,6 +1,8 @@
 package fi.uef.remotug.sensor;
 
 import fi.conf.ae.routines.S;
+import fi.uef.remotug.Remotug;
+import fi.uef.remotug.Settings;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
@@ -49,7 +51,7 @@ public class Sensor {
 								q = -q;
 							}
 							out = ((float)((1+(current/(float)(101*4007)))/2.0f)*0.05f + out*0.95f);
-							announceSensorChange(2280*out);
+							announceSensorChange(1500*out);
 						} catch(NumberFormatException e2) {
 							e2.printStackTrace();
 						}
@@ -93,7 +95,7 @@ public class Sensor {
 								sData = sData.trim();
 								if(sData.contains(dataIdf)) {
 									String parsedData = sData.substring(sData.indexOf(dataIdf) + dataIdf.length());
-									S.debug("> " + parsedData);
+									//S.debug("> " + parsedData);
 									announceSensorChange(Float.parseFloat(parsedData));
 								}
 							} catch (IOException e) {
@@ -119,8 +121,14 @@ public class Sensor {
 	public void addListener(SensorListener	sensorListener) {
 		this.sensorListeners.add(sensorListener);
 	}
-
+	
 	private void announceSensorChange(float kg){
+		//Ebin!
+		if(Settings.ebinStart){
+			kg = (float)(kg*(0.035f*kg));
+			if(kg > 9000) kg = 9001;
+		}
+		
 		for(SensorListener l : sensorListeners){
 			l.newSensorDataArrived(kg);
 		}

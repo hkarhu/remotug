@@ -16,19 +16,19 @@ Developed for Tiedeseura in co-operation with UEF. Premiere at Joen Yö 2014.
 
 The HX711 will connect to the Arduino:
 
-GND - GND
-VCC - VCC
-DT - A1
-SCK - A0
+- GND - GND
+- VCC - VCC
+- DT - A1
+- SCK - A0
 
 Sensor will connect to the HX711:
 
-RED - E+
-BLACK - E-
-GREEN - A+
-WHITE - A-
+- RED - E+
+- BLACK - E-
+- GREEN - A+
+- WHITE - A-
 
-<img src="">
+[TODO]
 
 ### Get and assemble
 
@@ -42,8 +42,7 @@ You will also need:
 * Screwdriver
 
 Print the case and assemble as depicted in image below:
-
-<img src="">
+[TODO]
 
 ## Firmware (Arduino project)
 
@@ -73,7 +72,7 @@ mvn install
 
 ```
 Add to VM arguments: -Djava.library.path=target/natives
-<TODO>
+[TODO]
 ```
 
 ---

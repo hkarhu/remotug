@@ -258,13 +258,13 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 					GL11.glTranslatef(GLValues.glWidth*0.5f, GLValues.glHeight*0.48f, 0);
 					GL11.glColor4f(1, 1, 1, 1);
 					
-					if(winner >= 0){
+					if(winner >= 0){ //Won
 						if(winner == Remotug.settings.getPlayerID()){
 							GLTextureManager.getInstance().bindTexture("win");
 							GL11.glRotatef(20*(float)Math.sin(lt*0.003f), 0, 0, 1);
 							GLGraphicRoutines.draw2DRect(-1.5f, -0.75f, 1.5f, 0.75f, 0);
 							GLBitmapFontBlitter.drawString("You win!", "font", 0.4f, 0.7f, Alignment.CENTERED);
-						} else {
+						} else { //Lost
 							GL11.glTranslatef(0, -0.2f, 0);
 							GLTextureManager.getInstance().bindTexture("lose");
 							GL11.glTranslatef(0.3f*(float)Math.sin(lt*0.003f), 0, 0);
@@ -286,6 +286,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 			
 			if(connection.isConnected()){
 				if(!gameOn && !localPlayerReady){
+					//Game over 
 					GL11.glColor4f(1, 1, 1, 1);
 					GL11.glTranslatef(GLValues.glWidth - ((lt%10000)*0.0001f)*GLValues.glWidth*3.75f, GLValues.glHeight*0.08f, GLValues.glDepth);
 					GLBitmapFontBlitter.drawScrollerString("Game Over                 Press space to begin a new match!", 0.3f, 0.5f, -3, 0.25f, lt*0.005f - 0.75f, "font");
@@ -329,6 +330,8 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		//Reset game
 		if(eventKey == Keyboard.KEY_SPACE){
 			connection.writePacket(new ReadyPacket(Remotug.settings.getPlayerID(), Remotug.settings.getPlayerName()));
+		} else if(eventKey == Keyboard.KEY_ESCAPE){
+			Remotug.shutdown();
 		}
 	}
 	
@@ -387,6 +390,8 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		remotePlayerReady = false;
 		gameOn = true;
 		endTime = System.currentTimeMillis() + duration;
+		
+		Remotug.settings.ebinStart();
 	}
 	
 
