@@ -81,6 +81,7 @@ public class Connection implements SensorListener {
 	}
 
 	public void close(){
+		myChannel.disconnect();
 		myChannel = null;
 		workerGroup.shutdownGracefully();
 	}

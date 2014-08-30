@@ -17,7 +17,7 @@ public class LocalPowerMeter extends PowerMeter {
 		
 		GL11.glRotatef(105 + 330*localForce, 0, 0, 1);
 		GL11.glColor4f(1,1,1,0.5f);
-		GLTextureManager.getInstance().bindTexture("meter_indicator");
+		GLTextureManager.getInstance().bindTexture("meter_local_indicator");
 		GLGraphicRoutines.draw2DRect(-0.12f*METER_SIZE, -0.12f*METER_SIZE, 0.8f*METER_SIZE, 0.12f*METER_SIZE, 0);
 		GL11.glPopMatrix();
 		

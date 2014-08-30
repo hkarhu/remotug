@@ -217,12 +217,14 @@ public class SetupDialog extends JDialog {
         );
 
         this.pack();
+        this.setResizable(false);
+        this.setAlwaysOnTop(true);
         this.setLocationRelativeTo(null);
         this.setVisible(true);
 	}
 
 	public boolean userSelectedConnect() {
-		return true;
+		return userSelectedConnect;
 	}
 
 	public Settings getSettings() {

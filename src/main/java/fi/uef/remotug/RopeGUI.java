@@ -101,6 +101,7 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/flag.png"), "flag");
 		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/win.png"), "win");
 		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/lose.png"), "lose");
+		GLTextureManager.getInstance().blockingLoad(this.getClass().getResourceAsStream("/meter_local_indicator.png"), "meter_local_indicator");
 		
 		//Create new model manager instance
 		new ModelManager().initialize();
