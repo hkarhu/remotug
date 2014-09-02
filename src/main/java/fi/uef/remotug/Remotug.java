@@ -2,9 +2,6 @@ package fi.uef.remotug;
 
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
-
 import fi.conf.ae.routines.S;
 import fi.uef.remotug.net.ConnectPacket;
 import fi.uef.remotug.net.client.Connection;

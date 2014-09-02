@@ -3,22 +3,10 @@ package fi.uef.remotug.net.server;
 import fi.uef.remotug.net.BasePacket;
 import fi.uef.remotug.net.ConnectPacket;
 import fi.uef.remotug.net.DataPacket;
-import fi.uef.remotug.net.EndPacket;
 import fi.uef.remotug.net.ReadyPacket;
-import fi.uef.remotug.net.StartPacket;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TimerTask;
-import java.util.Map.Entry;
-import java.util.Timer;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ServersideHandler extends ChannelHandlerAdapter {
 	
@@ -93,8 +81,7 @@ public class ServersideHandler extends ChannelHandlerAdapter {
 				System.out.println("[server] ready packet ignored because of ongoing match");
 				break;
 			}
-			ReadyPacket rp = (ReadyPacket)p;
-			server.playerReady(ctx.channel());
+			server.playerReady(ctx.channel(), (ReadyPacket)p);
 			break;
 		case data: 
 			//System.out.println("[server] received a data-packet");

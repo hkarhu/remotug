@@ -1,8 +1,5 @@
 package fi.uef.remotug.net.client;
 
-import java.util.HashMap;
-import java.util.List;
-
 import fi.uef.remotug.Remotug;
 import fi.uef.remotug.net.BasePacket;
 import fi.uef.remotug.net.ConnectPacket;
@@ -10,9 +7,11 @@ import fi.uef.remotug.net.DataPacket;
 import fi.uef.remotug.net.EndPacket;
 import fi.uef.remotug.net.ReadyPacket;
 import fi.uef.remotug.net.StartPacket;
-import fi.uef.remotug.net.server.Player;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class ClientsideHandler extends ChannelHandlerAdapter {
 	

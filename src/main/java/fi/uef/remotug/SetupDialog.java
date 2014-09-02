@@ -20,8 +20,8 @@ import javax.swing.SwingConstants;
 public class SetupDialog extends JDialog {
 
     private JButton buttonConnect;
-    private JComboBox comboSensorPort;
-    private JComboBox comboSensorSpeed;
+    private JComboBox<String> comboSensorPort;
+    private JComboBox<Integer> comboSensorSpeed;
     private JLabel jLabel1;
     private JLabel jLabel2;
     private JLabel jLabel3;
@@ -38,20 +38,19 @@ public class SetupDialog extends JDialog {
     private boolean userSelectedConnect = false;
     
     private static String[] listSerialPorts() {
-    	 
-        Enumeration ports = CommPortIdentifier.getPortIdentifiers();
-        ArrayList portList = new ArrayList();
+		Enumeration<CommPortIdentifier> ports = CommPortIdentifier.getPortIdentifiers();
+        ArrayList<String> portList = new ArrayList<String>();
         portList.add("emulation");
         //portList.add("/dev/ttyACM0");
         //portList.add("/dev/ttyUSB0");
         String portArray[] = null;
         while (ports.hasMoreElements()) {
-            CommPortIdentifier port = (CommPortIdentifier) ports.nextElement();
+            CommPortIdentifier port = ports.nextElement();
             if (port.getPortType() == CommPortIdentifier.PORT_SERIAL) {
                 portList.add(port.getName());
             }
         }
-        portArray = (String[]) portList.toArray(new String[0]);
+        portArray = portList.toArray(new String[0]);
         return portArray;
     }
     
@@ -73,7 +72,7 @@ public class SetupDialog extends JDialog {
         textName = new JTextField();
         textConnectionAddress = new JTextField();
         textConnectionPort = new JTextField();
-        comboSensorPort = new JComboBox();
+        comboSensorPort = new JComboBox<String>();
         comboSensorSpeed = new JComboBox<Integer>();
         buttonConnect = new JButton();
 
@@ -95,7 +94,7 @@ public class SetupDialog extends JDialog {
 
         String[] ports = listSerialPorts();
         
-        comboSensorPort.setModel(new DefaultComboBoxModel(ports));
+        comboSensorPort.setModel(new DefaultComboBoxModel<String>(ports));
         comboSensorPort.setEditable(true);
         comboSensorPort.setSelectedItem(settings.getSensorPort());
         comboSensorPort.addActionListener(new ActionListener() {
@@ -114,7 +113,7 @@ public class SetupDialog extends JDialog {
         jLabel7.setText("Sensor");
 
         comboSensorSpeed.setSelectedItem(settings.getSensorSpeed());
-        comboSensorSpeed.setModel(new DefaultComboBoxModel(new Integer[] { 38400, 9600 }));
+        comboSensorSpeed.setModel(new DefaultComboBoxModel<Integer>(new Integer[] { 38400, 9600 }));
         comboSensorSpeed.setEditable(true);
         comboSensorSpeed.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -142,7 +141,7 @@ public class SetupDialog extends JDialog {
             	settings.setSensorSpeed((int)comboSensorSpeed.getSelectedItem());
             	
             	settings.print();
-            	settings.saveSettings(settings);
+            	Settings.saveSettings(settings);
             	SetupDialog.this.dispose();
             }
         });

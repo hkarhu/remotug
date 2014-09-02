@@ -1,7 +1,6 @@
 package fi.uef.remotug.gl;
 
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.HashMap;
 
 import fi.conf.ae.AE;

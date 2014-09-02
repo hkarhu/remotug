@@ -19,7 +19,6 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import fi.conf.ae.routines.S;
-import fi.uef.remotug.Remotug;
 import fi.uef.remotug.net.BasePacket;
 import fi.uef.remotug.net.DataPacket;
 import fi.uef.remotug.sensor.SensorListener;

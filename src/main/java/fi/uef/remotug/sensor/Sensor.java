@@ -1,7 +1,6 @@
 package fi.uef.remotug.sensor;
 
 import fi.conf.ae.routines.S;
-import fi.uef.remotug.Remotug;
 import fi.uef.remotug.Settings;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;

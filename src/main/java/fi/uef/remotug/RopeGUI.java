@@ -4,13 +4,10 @@ import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import javax.print.attribute.standard.MediaSize.Other;
-
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import fi.conf.ae.gl.GLGraphicRoutines;
 import fi.conf.ae.gl.GLValues;
@@ -20,8 +17,6 @@ import fi.conf.ae.gl.core.GLKeyboardListener;
 import fi.conf.ae.gl.text.GLBitmapFontBlitter;
 import fi.conf.ae.gl.text.GLBitmapFontBlitter.Alignment;
 import fi.conf.ae.gl.texture.GLTextureManager;
-import fi.conf.ae.gl.texture.GLTextureRoutines;
-import fi.conf.ae.routines.S;
 import fi.uef.remotug.gl.ModelManager;
 import fi.uef.remotug.net.ReadyPacket;
 import fi.uef.remotug.net.client.Connection;
@@ -32,11 +27,11 @@ public class RopeGUI extends GLCore implements GLKeyboardListener, ConnectionLis
 
     private final float SCALER = 2280f;
     
-    private int matchDuration = 30;
+    //private int matchDuration = 30;
 	private long startTime = 0;
 	private long endTime = 0;
 	private volatile float balance = 0;
-	private volatile float sensor = 0;
+	//private volatile float sensor = 0;
 	private float lt = 0;
 	private int winner = -1;
 	private boolean localPlayerReady = false;

@@ -115,7 +115,7 @@ public class RemotugServer {
 		workerEventLoopGroup.shutdownGracefully();
 	}
 	
-	public void playerReady(Channel channel) {
+	public void playerReady(Channel channel, ReadyPacket rp) {
 		if(this.matchStarted == NO_ACTIVE_MATCH) {
 			Player player = this.channelToPlayerMap.get(channel);
 			player.setReadyForMatch(true);
@@ -125,6 +125,7 @@ public class RemotugServer {
 				if(p.isReadyForMatch()) readyPlayers++;
 			}
 			
+			//TODO: Use the provided ReadyPacket rp here?
 			this.allClients.writeAndFlush(new ReadyPacket(player.getId(), player.getName()));
 			
 			// && readyPlayers == this.channelToPlayerMap.size()
@@ -149,7 +150,7 @@ public class RemotugServer {
 			p.resetRopePos();
 		}
 		this.matchStarted = System.currentTimeMillis();
-		this.allClients.writeAndFlush(new StartPacket(this.matchStarted, this.MATCH_LENGTH, this.MATCH_START_DELAY));
+		this.allClients.writeAndFlush(new StartPacket(this.matchStarted, MATCH_LENGTH, MATCH_START_DELAY));
 	}
 	
 	public void endActiveMatch() {
